@@ -1,5 +1,6 @@
 // Warna ikon per regional
 const regionalColors = {
+  "REGIONAL 1": "yellow",
   "REGIONAL 2": "red",
   "REGIONAL 3": "blue",
   "REGIONAL 4": "green",
@@ -7,7 +8,7 @@ const regionalColors = {
   "REGIONAL 6": "purple"
 };
 
-// Peta Indonesia
+// Inisialisasi peta di tengah Indonesia
 const map = L.map("map").setView([-2.5, 118], 5);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -15,7 +16,7 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors"
 }).addTo(map);
 
-// Fungsi buat icon balon warna-warni
+// Fungsi buat ikon balon warna-warni
 function createColoredIcon(color) {
   return L.icon({
     iconUrl: `https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=home|${color}`,
@@ -25,7 +26,9 @@ function createColoredIcon(color) {
   });
 }
 
-// Load CSV
+let allMarkers = []; // simpan semua marker agar bisa dicari nanti
+
+// Load CSV data
 Papa.parse("data.csv", {
   download: true,
   header: true,
@@ -39,7 +42,6 @@ Papa.parse("data.csv", {
       const color = regionalColors[regional] || "gray";
       const icon = createColoredIcon(color);
 
-      // Tambahkan marker balon warna sesuai regional
       const marker = L.marker([lat, lon], { icon }).addTo(map);
 
       marker.bindPopup(`
@@ -51,16 +53,18 @@ Papa.parse("data.csv", {
         Alamat: ${row["ALAMAT"]}<br>
         Provinsi: ${row["PROVINSI"]}
       `);
+
+      allMarkers.push({ nopen: row["NOPEN INDUK"], marker: marker });
     });
 
     addLegend();
+    addSearchBox();
   }
 });
 
 // Tambah legend warna
 function addLegend() {
   const legend = L.control({ position: "bottomright" });
-
   legend.onAdd = function () {
     const div = L.DomUtil.create("div", "info legend");
     div.innerHTML = "<h4>Regional</h4>";
@@ -71,9 +75,36 @@ function addLegend() {
         <i style="background:${color}; width:15px; height:15px; display:inline-block; margin-right:6px;"></i> ${reg}<br>
       `;
     }
+    return div;
+  };
+  legend.addTo(map);
+}
 
+// Tambah kolom pencarian NOPEN di pojok atas
+function addSearchBox() {
+  const searchBox = L.control({ position: "topleft" });
+
+  searchBox.onAdd = function () {
+    const div = L.DomUtil.create("div", "search-box");
+    div.innerHTML = `
+      <input type="text" id="searchNopen" placeholder="Cari NOPEN...">
+      <button id="btnSearch">Cari</button>
+    `;
     return div;
   };
 
-  legend.addTo(map);
+  searchBox.addTo(map);
+
+  document.getElementById("btnSearch").addEventListener("click", () => {
+    const input = document.getElementById("searchNopen").value.trim();
+    if (!input) return alert("Masukkan NOPEN terlebih dahulu!");
+
+    const found = allMarkers.find(m => m.nopen === input);
+    if (found) {
+      map.setView(found.marker.getLatLng(), 12);
+      found.marker.openPopup();
+    } else {
+      alert("NOPEN tidak ditemukan!");
+    }
+  });
 }
