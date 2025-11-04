@@ -9,6 +9,7 @@ html, body {
   height: 100vh;
 }
 
+/* === LEGEND === */
 .legend {
   background: white;
   padding: 10px;
@@ -23,31 +24,51 @@ html, body {
   font-weight: bold;
 }
 
-.search-box {
+/* === SEARCH DI TENGAH ATAS === */
+.search-container {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+}
+
+.search-wrapper {
+  position: relative;
   background: white;
-  padding: 5px;
-  border-radius: 6px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  padding: 8px;
+  width: 320px;
 }
 
-.search-box input {
-  padding: 5px;
+.search-wrapper input {
+  width: 100%;
+  padding: 8px 10px;
   border: 1px solid #ccc;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
 }
 
-.search-box button {
-  padding: 5px 10px;
-  margin-left: 5px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  border-radius: 4px;
+.suggestions {
+  position: absolute;
+  top: 40px;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 10000;
+}
+
+.suggestion-item {
+  padding: 6px 10px;
   cursor: pointer;
 }
-.search-box button:hover {
-  background-color: #45a049;
+
+.suggestion-item:hover {
+  background-color: #f0f0f0;
 }
-
-
-
