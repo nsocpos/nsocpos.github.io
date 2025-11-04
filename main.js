@@ -16,19 +16,24 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   attribution: "&copy; OpenStreetMap contributors"
 }).addTo(map);
 
-// Fungsi buat ikon balon warna-warni
-function createColoredIcon(color) {
+// === ICON BALON ===
+// Pakai ikon kustom (balon udara gaya pin)
+function createBalloonIcon(color) {
   return L.icon({
-    iconUrl: `https://chart.googleapis.com/chart?chst=d_map_pin_icon&chld=home|${color}`,
-    iconSize: [30, 50],
-    iconAnchor: [15, 45],
-    popupAnchor: [0, -40]
+    iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
+    shadowUrl:
+      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [0, -35],
+    shadowSize: [41, 41]
   });
 }
 
-let allMarkers = []; // simpan semua marker agar bisa dicari nanti
+let allMarkers = []; // untuk menyimpan semua marker
+let allNopen = [];   // untuk autocomplete
 
-// Load CSV data
+// === LOAD CSV ===
 Papa.parse("data.csv", {
   download: true,
   header: true,
@@ -39,8 +44,8 @@ Papa.parse("data.csv", {
       if (!lat || !lon) return;
 
       const regional = row["REGIONAL"];
-      const color = regionalColors[regional] || "gray";
-      const icon = createColoredIcon(color);
+      const colorName = regionalColors[regional] || "grey";
+      const icon = createBalloonIcon(colorName);
 
       const marker = L.marker([lat, lon], { icon }).addTo(map);
 
@@ -54,7 +59,16 @@ Papa.parse("data.csv", {
         Provinsi: ${row["PROVINSI"]}
       `);
 
-      allMarkers.push({ nopen: row["NOPEN INDUK"], marker: marker });
+      allMarkers.push({
+        nopen: row["NOPEN INDUK"],
+        nama: row["NAMA KANTOR"],
+        marker: marker
+      });
+
+      allNopen.push({
+        label: `${row["NOPEN INDUK"]} - ${row["NAMA KANTOR"]}`,
+        value: row["NOPEN INDUK"]
+      });
     });
 
     addLegend();
@@ -62,13 +76,12 @@ Papa.parse("data.csv", {
   }
 });
 
-// Tambah legend warna
+// === LEGEND ===
 function addLegend() {
   const legend = L.control({ position: "bottomright" });
   legend.onAdd = function () {
     const div = L.DomUtil.create("div", "info legend");
     div.innerHTML = "<h4>Regional</h4>";
-
     for (const reg in regionalColors) {
       const color = regionalColors[reg];
       div.innerHTML += `
@@ -80,31 +93,67 @@ function addLegend() {
   legend.addTo(map);
 }
 
-// Tambah kolom pencarian NOPEN di pojok atas
+// === SEARCH BOX DI TENGAH ATAS ===
 function addSearchBox() {
   const searchBox = L.control({ position: "topleft" });
 
   searchBox.onAdd = function () {
-    const div = L.DomUtil.create("div", "search-box");
+    const div = L.DomUtil.create("div", "search-container");
     div.innerHTML = `
-      <input type="text" id="searchNopen" placeholder="Cari NOPEN...">
-      <button id="btnSearch">Cari</button>
+      <div class="search-wrapper">
+        <input type="text" id="searchNopen" placeholder="🔍 Cari NOPEN atau Nama Kantor...">
+        <div id="suggestions" class="suggestions"></div>
+      </div>
     `;
     return div;
   };
 
   searchBox.addTo(map);
 
-  document.getElementById("btnSearch").addEventListener("click", () => {
-    const input = document.getElementById("searchNopen").value.trim();
-    if (!input) return alert("Masukkan NOPEN terlebih dahulu!");
+  const input = document.getElementById("searchNopen");
+  const suggestions = document.getElementById("suggestions");
 
-    const found = allMarkers.find(m => m.nopen === input);
-    if (found) {
-      map.setView(found.marker.getLatLng(), 12);
-      found.marker.openPopup();
-    } else {
-      alert("NOPEN tidak ditemukan!");
+  // === Auto-suggest ===
+  input.addEventListener("input", () => {
+    const value = input.value.toLowerCase();
+    suggestions.innerHTML = "";
+
+    if (value.length < 2) return; // baru muncul setelah 2 huruf
+
+    const filtered = allNopen.filter((item) =>
+      item.label.toLowerCase().includes(value)
+    );
+
+    filtered.slice(0, 10).forEach((item) => {
+      const div = document.createElement("div");
+      div.textContent = item.label;
+      div.classList.add("suggestion-item");
+      div.addEventListener("click", () => {
+        input.value = item.value;
+        suggestions.innerHTML = "";
+        searchNopen(item.value);
+      });
+      suggestions.appendChild(div);
+    });
+  });
+
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") {
+      searchNopen(input.value.trim());
     }
   });
+}
+
+// === FUNGSI PENCARIAN ===
+function searchNopen(nopen) {
+  const found = allMarkers.find(
+    (m) => m.nopen.toString().trim() === nopen.toString().trim()
+  );
+
+  if (found) {
+    map.setView(found.marker.getLatLng(), 12);
+    found.marker.openPopup();
+  } else {
+    alert("NOPEN tidak ditemukan!");
+  }
 }
