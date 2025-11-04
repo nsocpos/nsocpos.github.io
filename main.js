@@ -17,3 +17,5 @@ document.addEventListener('DOMContentLoaded', () => {
   const marker = L.marker([-6.175392, 106.827153]).addTo(map);
   marker.bindPopup('Monas - Jakarta').openPopup();
 });
+
+
