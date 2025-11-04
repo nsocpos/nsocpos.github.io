@@ -1,56 +1,25 @@
-// #map { height: 180px; }
-
-/* Hilangkan margin dan isi seluruh layar */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
 }
 
-/* Peta full screen */
 #map {
-  height: 100vh;
   width: 100vw;
+  height: 100vh;
 }
 
-/* Login box di atas peta */
-.login-container {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: rgba(255, 255, 255, 0.9);
-  padding: 20px 30px;
-  border-radius: 10px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-  z-index: 1000; /* biar muncul di atas peta */
-  width: 300px;
+/* Legend box */
+.legend {
+  background: white;
+  padding: 10px;
+  line-height: 18px;
+  color: #333;
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  font-size: 14px;
 }
-
-h2 {
-  text-align: center;
-}
-
-.form-group {
-  margin-bottom: 10px;
-}
-
-input {
-  width: 100%;
-  padding: 6px;
-  box-sizing: border-box;
-}
-
-button {
-  width: 100%;
-  padding: 8px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-button:hover {
-  background: #0056b3;
+.legend h4 {
+  margin: 0 0 5px;
+  font-weight: bold;
 }
