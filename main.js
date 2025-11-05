@@ -51,6 +51,7 @@ Papa.parse("data.csv", {
 
       marker.bindPopup(`
         <b>${row["NAMA KANTOR"]}</b><br>
+        Paket: ${row["Paket"]}<br>
         NOPEN: ${row["NOPEN INDUK"]}<br>
         Regional: ${row["REGIONAL"]}<br>
         Jenis Kantor: ${row["JENIS KANTOR"]}<br>
@@ -157,3 +158,4 @@ function searchNopen(nopen) {
     alert("NOPEN tidak ditemukan!");
   }
 }
+
