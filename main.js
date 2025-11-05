@@ -61,14 +61,14 @@ Papa.parse("data.csv", {
       `);
 
       allMarkers.push({
-        nopen: row["NOPEN INDUK"],
+        nopen: row["NOPEN"],
         nama: row["NAMA KANTOR"],
         marker: marker
       });
 
       allNopen.push({
-        label: `${row["NOPEN INDUK"]} - ${row["NAMA KANTOR"]}`,
-        value: row["NOPEN INDUK"]
+        label: `${row["NOPEN"]} - ${row["NAMA KANTOR"]}`,
+        value: row["NOPEN"]
       });
     });
 
@@ -158,4 +158,5 @@ function searchNopen(nopen) {
     alert("NOPEN tidak ditemukan!");
   }
 }
+
 
