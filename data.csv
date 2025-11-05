@@ -1,4 +1,4 @@
-Paket;NOPEN;NAMA KANTOR;NOPEN INDUK;REGIONAL;JENIS KANTOR;Status PSO;ALAMAT;PROVINSI;LATITUDE;LONGITUDE
+Paket;Nopen;NAMA KANTOR;NOPEN INDUK;REGIONAL;JENIS KANTOR;Status PSO;ALAMAT;PROVINSI;LATITUDE;LONGITUDE
 PAKET 1;20000;MEDAN;-;REGIONAL 1;KCU;Non LPU;Jl. Pos No. 1 Medan 20111, Kel. Kesawan, Kec. Medan Barat, Medan;Sumatera Utara;3.591.867;98.677.388
 PAKET 1;20004;KANTOR REGIONAL 1;-;REGIONAL 1;KCU;Non LPU;Jl. Prof. H.M. Yamin, S.H. No. 44,Kel. Gunung Batu, Kec. Medan Timur, Medan 20231;Sumatera Utara;3.594.084;98.680.461
 PAKET 1;20900;SPP MEDAN;-;REGIONAL 1;KCU;Non LPU;Jl.Raya Medan - Tanjung Merawa, Kel. Tanjung Baru, Kec. Tanjung Merawa, Deli Serdang;Sumatera Utara;3.550.943;98.828.371
@@ -1298,7 +1298,7 @@ PAKET 3A;56361;Selomerto;56300;REGIONAL 4;KCP;LPU 2024;Jl. Balekambang No. 153 M
 PAKET 3A;56362;Leksono;56300;REGIONAL 4;KCP;LPU 2024;Jl. Pancas Leksono, Kel.Leksono, Kec.Leksono, Wonosobo;Jawa Tengah;-741.913.085.587.089;109.855.233.741.711
 PAKET 3A;56363;Sukoharjowonosobo;56300;REGIONAL 4;KCP;LPU 2024;Jl. Raya Sukoharjo, Kel.Sampeh RT.1/RW.1, Kec.Sukoharjo, Wonosobo;Jawa Tengah;-74.081.300.391.037;109.795.024.168.822
 PAKET 3A;56364;Kaliwiro;56300;REGIONAL 4;KCP;LPU 2024;Jl. Raya Wadaslintang Kebon Dlm, Kel.Kaliwiro, Kec.Kaliwiro, Wonosobo;Jawa Tengah;-7.464.819;109.851.345
-PAKET 3A;56365;Wadaslintang;56300;REGIONAL 4;KCP;LPU 2024;Jl Raya Wonosobo – Prembun Wadaslintang;Jawa Tengah;-755.131.159.666.574;109.810.601.713.577
+PAKET 3A;56365;Wadaslintang;56300;REGIONAL 4;KCP;LPU 2024;Jl Raya Wonosobo Â– Prembun Wadaslintang;Jawa Tengah;-755.131.159.666.574;109.810.601.713.577
 PAKET 3A;56371;Kerteg;56300;REGIONAL 4;KCP;Non LPU;Jl. Parakan No. 127 Kerteg, Kel.Campursari, Kec.Kerteg, Wonosobo;Jawa Tengah;-7.387.242;10.996.606
 PAKET 3A;56372;Kalikajar;56300;REGIONAL 4;KCP;LPU 2024;Jl. Raya Kalikajar Wonosobo, Kel.Kalikajar, Kec.Kalikajar, Wonosobo;Jawa Tengah;-741.334.421.401.437;109.971.406.761.919
 PAKET 3A;56373;Sapuran;56300;REGIONAL 4;KCP;LPU 2024;Jl. Surodento No. 836 Sapuran, Kel.Sapuran, Kec.Sapuran, Wonosobo;Jawa Tengah;-7.461.135;109.979.978
@@ -2801,7 +2801,7 @@ PAKET 4;42183D1;LE Walantaka;42100;REGIONAL 2;LE;Non LPU;Jl. Ciruas petir km 3, 
 PAKET 4;42434D1;LE Krakataujunction;42400;REGIONAL 2;LE;Non LPU;Jl. Yasin Beji Cilegon, Kel. Kotabumi, Kec. Purwakarta, Cilegon;Banten;-599.672;1.060.401
 PAKET 4;42435A;Cilegonkrakatausteel;42400;REGIONAL 2;KCP;Non LPU;Jl. H. Santani No. 1 Cilegon, Kel. Kotabumi, Kec. Purwakarta, Cilegon;Banten;-5.991.984;10.603.786
 PAKET 4;42443D1;LE Ciawandan;42400;REGIONAL 2;LE;Non LPU;Jl Raya Anyer KP Warung Juet RT. 03/02, Kel. Samang Raya, Kec. Citangkil, Cilegon;Banten;-601.136;10.599.833
-PAKET 4;110000;MPS Jakartabarat 1;11000 ;REGIONAL 2;MPS;Non LPU;KPRK Jakartabarat 11000, Jl. Daan Mogot No. 20, Kel. Wijaya Kusuma, Kec. Grogol Petamburan, Jakarta Barat;DKI Jakarta;#N/A;#N/A
+PAKET 4;110000;MPS Jakartabarat 1;11000Â ;REGIONAL 2;MPS;Non LPU;KPRK Jakartabarat 11000, Jl. Daan Mogot No. 20, Kel. Wijaya Kusuma, Kec. Grogol Petamburan, Jakarta Barat;DKI Jakarta;#N/A;#N/A
 PAKET 4;14520B1;Pulautidung;13000;REGIONAL 2;KCP;LPU 2024;Pulau Tidung Rt 03 Rw 02 kepulauan Seribu Selatan 14520;DKI Jakarta;-57.451.608.914.631;106.613.086.165.016
 PAKET 4;40151B;Bandungpusdiklatpos;40000;REGIONAL 3;KCP;Non LPU;Jl. Terusan Sari Asih 54 Bandung, Kel. Sarijadi, Kec. Sukasari, Bandung;Jawa Barat;-6.874.303;107.575.943
 PAKET 4;40163A;Bandungmaranatha;40000;REGIONAL 3;KCP;Non LPU;Jl. Surya Sumantri No. 65 Bandung, Kel. Sukagalih, Kec. Sukajadi, Bandung;Jawa Barat;-6.886.719;107.580.859
@@ -3692,7 +3692,7 @@ PAKET 4;10000F4;Cpm Jakartacentrummandiri 1;10000;REGIONAL 2;MR;Non LPU;Jl. Mh T
 PAKET 4;21351;Baganasahan;21200;REGIONAL 1;KCP;LPU 2024;Jl. Sukaramai No. 233;SUMATERA UTARA;298.626.702.281.083;997.989.459.892.986
 PAKET 4;25392;Sioban;25000;REGIONAL 1;KCP;LPU 2024;Desa Sioban;SUMATERA BARAT;-2.187.015;99.706.548
 PAKET 4;25394;Muarasikabaluan;25000;REGIONAL 1;KCP;LPU 2024;Desa Muara Sikabaluan;SUMATERA BARAT;-1.130.869;98.979.743
-PAKET 4;29193;Tambelan;29100;REGIONAL 1;KCP;LPU 2024;Jl. Raya…;KEPULAUAN RIAU;0.9564225;1.044.505.347
+PAKET 4;29193;Tambelan;29100;REGIONAL 1;KCP;LPU 2024;Jl. RayaÂ…;KEPULAUAN RIAU;0.9564225;1.044.505.347
 PAKET 4;29781;Serasan;29100;REGIONAL 1;KCP;LPU 2024;Jl. Mesjid;KEPULAUAN RIAU;2.516.667;109.033.333
 PAKET 4;29784;Midai;29100;REGIONAL 1;KCP;LPU 2024;Jl. Merdeka No. 61;KEPULAUAN RIAU;3.005.273;10.776.066
 PAKET 4;36655;Sungairengas;36000;REGIONAL 1;KCP;LPU 2024;Jl. Jambi-Muara Bungo Km 120;JAMBI;-174.863.038.190.691;102.759.396.729.993
@@ -3999,3 +3999,4 @@ PAKET 4;51351A;Kendalpatebon;51300;REGIONAL 4;KCP;Non LPU;Jl. Raya Soekarno Hatt
 PAKET 4;70881B1;Asamasam;70700;REGIONAL 6;KCP;LPU 2024;Jl. A Yani Km 122 desa Simpang Empat Sungai Baru, Jorong;Kalimantan Selatan;-3.897.075;115.093.713
 PAKET 4;72184B1;SENGAYAM;72200;REGIONAL 6;KCP;LPU 2024;Jl. LINTAS PROPINSI KALSEL-TIM, Kel. SENGAYAM, Kec. PAMUKAN BARAT, KOTABARUPULAULAUT;Kalimantan Selatan;-2.335.902;116.010.348
 PAKET 4;98572B1;Tofoi;98300;REGIONAL 6;KCP;LPU 2024;Tofoi Sumuri, Kel. Tofoi, Kec. Sumuri, Teluk Bintuni;Papua Barat;-253.649.519.708.149;133.258.602.826.533
+
