@@ -1,5 +1,6 @@
 // Warna ikon per regional
 const regionalColors = {
+  "REGIONAL 1": "yellow",
   "REGIONAL 2": "red",
   "REGIONAL 3": "blue",
   "REGIONAL 4": "green",
@@ -50,7 +51,7 @@ Papa.parse("data.csv", {
 
       marker.bindPopup(`
         <b>${row["NAMA KANTOR"]}</b><br>
-        NOPEN: ${row["NOPEN INDUK"]}<br>
+        NOPEN: ${row["NOPEN"]}<br>
         Regional: ${row["REGIONAL"]}<br>
         Jenis Kantor: ${row["JENIS KANTOR"]}<br>
         Status PSO: ${row["Status PSO"]}<br>
@@ -59,14 +60,14 @@ Papa.parse("data.csv", {
       `);
 
       allMarkers.push({
-        nopen: row["NOPEN INDUK"],
+        nopen: row["NOPEN"],
         nama: row["NAMA KANTOR"],
         marker: marker
       });
 
       allNopen.push({
-        label: `${row["NOPEN INDUK"]} - ${row["NAMA KANTOR"]}`,
-        value: row["NOPEN INDUK"]
+        label: `${row["NOPEN"]} - ${row["NAMA KANTOR"]}`,
+        value: row["NOPEN"]
       });
     });
 
@@ -156,3 +157,4 @@ function searchNopen(nopen) {
     alert("NOPEN tidak ditemukan!");
   }
 }
+
