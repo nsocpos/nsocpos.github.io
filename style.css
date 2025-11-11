@@ -101,7 +101,7 @@ html, body {
   max-width: 280px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1;
-  padding: 12px;
+  padding: 10px;
 }
 
 .leaflet-popup-content h3 {
