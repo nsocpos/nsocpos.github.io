@@ -161,17 +161,28 @@ function addSearchBox() {
 
 // === FUNGSI PENCARIAN ===
 function searchNopen(nopen) {
+  // Normalisasi input: hapus spasi berlebih & jadikan string
+  const targetNopen = nopen.toString().trim();
   const found = allMarkers.find(
     (m) => m.nopen.toString().trim() === nopen.toString().trim()
   );
 
   if (found) {
-    map.setView(found.marker.getLatLng(), 12);
-    found.marker.openPopup();
+   // Dapatkan koordinat marker
+    const latlng = found.marker.getLatLng();
+
+    // Animasikan perpindahan ke lokasi + buka popup
+    map.setView(latlng, 14, { animate: true }); // zoom 14 = detail kota
+
+    // Tunda sedikit agar animasi selesai sebelum popup muncul (opsional)
+    setTimeout(() => {
+      found.marker.openPopup();
+    }, 300);
   } else {
-    alert("NOPEN tidak ditemukan!");
+    alert("NOPEN tidak ditemukan: " + targetNopen);
   }
 }
+
 
 
 
