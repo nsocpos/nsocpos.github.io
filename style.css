@@ -123,7 +123,7 @@ html, body {
 
 .leaflet-popup-content dd {
   display: inline;
-  margin-left: 8px;
+  margin-left: 4px;
 }
 
 .leaflet-popup-content dd::after {
