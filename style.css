@@ -11,9 +11,6 @@ html, body {
 
 /* === LEGEND === */
 .legend {
-  position: fixed;          /* Tetap di atas peta */
-  top: 70px;                /* Di bawah search container */
-  left: 20px;
   background: white;
   padding: 10px;
   line-height: 18px;
@@ -21,7 +18,6 @@ html, body {
   border-radius: 6px;
   box-shadow: 0 0 8px rgba(0,0,0,0.2);
   font-size: 14px;
-  z-index: 999;             /* Di bawah search (z-index 9999) */
 }
 .legend h4 {
   margin: 0 0 5px;
