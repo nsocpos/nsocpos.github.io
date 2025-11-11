@@ -5,7 +5,7 @@ const regionalColors = {
   "REGIONAL 3": "blue",
   "REGIONAL 4": "green",
   "REGIONAL 5": "orange",
-  "REGIONAL 6": "purple"
+  "REGIONAL 6": "violet"
 };
 
 // Inisialisasi peta di tengah Indonesia
@@ -44,7 +44,7 @@ Papa.parse("data.csv", {
       if (!lat || !lon) return;
 
       const regional = row["REGIONAL"];
-      const colorName = regionalColors[regional] || "grey";
+      const colorName = regionalColors[regional] || "gray";
       const icon = createBalloonIcon(colorName);
 
       const marker = L.marker([lat, lon], { icon }).addTo(map);
@@ -157,4 +157,5 @@ function searchNopen(nopen) {
     alert("NOPEN tidak ditemukan!");
   }
 }
+
 
