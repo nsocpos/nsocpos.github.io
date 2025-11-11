@@ -146,10 +146,10 @@ PAKET 2A;75300;BONTANG;-;REGIONAL 6;KC;Non LPU;Jl. MT Haryono No. 3, Bontang, Ke
 PAKET 2A;75500;TENGGARONG;-;REGIONAL 6;KC;Non LPU;Jl. Jend. A Yani No. 5, Kel. Melayu, Kec. Tenggarong, Kutai Kartanegara;Kalimantan Timur;-0.414861;1.169.889
 PAKET 2A;77000;TANJUNGSELOR;-;REGIONAL 6;KC;Non LPU;Jl. Skip II, Kel. Tanjungselor, Kec. Tanjungselor, Bulungan;Kalimantan Utara;284.460.079.572.145;117.364.583.015.441
 PAKET 2A;77100;TARAKAN;-;REGIONAL 6;KC;Non LPU;Jl. Jend. Sudirman No. 12, Kel. Tarakan Pamusian, Kec. Tarakan Tengah, Tarakan;Kalimantan Utara;3.310.858;117.593.094
-PAKET 2A;77300;TANJUNGREDEB;-;REGIONAL 5;KC;Non LPU;Jl. Pemuda No. 542 Tanjungredeb, Kel. Tanjungredeb, Kec. Tanjungredeb, Berau;Kalimantan Timur;2.152.867;117.493.758
-PAKET 2A;78500;SANGGAU;-;REGIONAL 5;KC;Non LPU;Jl. H Agus Salim No. 42 Beringin, Kel. Beringin, Kec. Sanggau Kapuas, Sanggau;Kalimantan Barat;0.119844;110.593.259
-PAKET 2A;78600;SINTANG;-;REGIONAL 5;KC;Non LPU;Jl. S. Parman No. 90, Kel. Kapuas Kanan, Kec. Hulu Sintang, Sintang;Kalimantan Barat;0.077488;11.149.589
-PAKET 2A;78800;KETAPANG;-;REGIONAL 5;KC;Non LPU;Jl. Dr.Sutomo No. 4, Kel. Kantor, Kec. Delta Pawan, Ketapang;Kalimantan Barat;-1.850.587;109.977.769
+PAKET 2A;77300;TANJUNGREDEB;-;REGIONAL 6;KC;Non LPU;Jl. Pemuda No. 542 Tanjungredeb, Kel. Tanjungredeb, Kec. Tanjungredeb, Berau;Kalimantan Timur;2.152.867;117.493.758
+PAKET 2A;78500;SANGGAU;-;REGIONAL 6;KC;Non LPU;Jl. H Agus Salim No. 42 Beringin, Kel. Beringin, Kec. Sanggau Kapuas, Sanggau;Kalimantan Barat;0.119844;110.593.259
+PAKET 2A;78600;SINTANG;-;REGIONAL 6;KC;Non LPU;Jl. S. Parman No. 90, Kel. Kapuas Kanan, Kec. Hulu Sintang, Sintang;Kalimantan Barat;0.077488;11.149.589
+PAKET 2A;78800;KETAPANG;-;REGIONAL 6;KC;Non LPU;Jl. Dr.Sutomo No. 4, Kel. Kantor, Kec. Delta Pawan, Ketapang;Kalimantan Barat;-1.850.587;109.977.769
 PAKET 2A;79100;SINGKAWANG;-;REGIONAL 6;KC;Non LPU;Jl. Pemuda No. 107, Kel. Condong, Kec. Singkawang Tengah, Singkawang;Kalimantan Barat;0.913018;108.991.443
 PAKET 2A;91500;MAMUJU;-;REGIONAL 6;KC;Non LPU;Jl. Yos Sudarso No. 163, Kel. Binanga, Kec. Mamuju, Mamuju;Sulawesi Barat;-2.670.613;11.889.134
 PAKET 2A;91900;PALOPO;-;REGIONAL 5;KC;Non LPU;Jl. A Yani No. 15 Palopo 91911, Kel. Batupasi, Kec. Wara Utara, Palopo;Sulawesi Selatan;-2.993.838;120.195.665
@@ -159,7 +159,7 @@ PAKET 2A;69200;SAMPANG;-;REGIONAL 1;KC;Non LPU;Jl. Pahlawan No 2, Kelurahan Rong
 PAKET 2A;64200;PARE;-;REGIONAL 1;KC;Non LPU;Jl. WR. Supratman No. 3, Kelurahan Pare, Kecamatan Pare, Kediri, Jawa Timur;Jawa Timur;-7.769.343;112.196.552
 PAKET 2A;65300;BATU;-;REGIONAL 1;KC;Non LPU;Jl. Panglima Sudirman Batu, Kelurahan Ngaglik, Kecamatan Batu ,Batu, Jawa Timur;Jawa Timur;-786.818.264.202.856;112.516.457.756.854
 PAKET 2A;66300;TRENGGALEK;-;REGIONAL 1;KC;Non LPU;Jl. Sunan Kalijaga No. 7, Kelurahan Ngantru, Kecamatan Trenggalek, Trenggalek, Jawa Timur;Jawa Timur;-8.048.773;111.708.395
-PAKET 2A;72200;BATULICIN;-;REGIONAL 1;KC;Non LPU;Jl. Transmigrasi No. 5, Kel. Kampung Baru, Kec. Batulicin, Tanah Bumbu;Kalimantan Selatan;-3.422.539;116.004.155
+PAKET 2A;72200;BATULICIN;-;REGIONAL 6;KC;Non LPU;Jl. Transmigrasi No. 5, Kel. Kampung Baru, Kec. Batulicin, Tanah Bumbu;Kalimantan Selatan;-3.422.539;116.004.155
 PAKET 2A;93700;BAUBAU;-;REGIONAL 1;KC;Non LPU;Jl. Murhum No. 56, Kel. Wajo, Kec. Murhum, Bau Bau;Sulawesi Tenggara;-5.463.766.725.399;122.601.329.647.238
 PAKET 2A;63500;PACITAN;-;REGIONAL 1;KC;Non LPU;Jl. Ronggowarsito No. 11, Kelurahan Baleharjo, Kecamatan Pacita, Pacitan, Jawa Timur;Jawa Timur;-8.196.396;111.104.139
 PAKET 2A;22300;BALIGE;-;REGIONAL 1;KC;Non LPU;Jl. D.I. Panjaitan No. 4 Balige 22311, Kel. Napitupulu, Kec. Balige, Toba Samosir;Sumatera Utara;2.335.367;9.906.423
@@ -3999,6 +3999,7 @@ PAKET 4;51351A;Kendalpatebon;51300;REGIONAL 4;KCP;Non LPU;Jl. Raya Soekarno Hatt
 PAKET 4;70881B1;Asamasam;70700;REGIONAL 6;KCP;LPU 2024;Jl. A Yani Km 122 desa Simpang Empat Sungai Baru, Jorong;Kalimantan Selatan;-3.897.075;115.093.713
 PAKET 4;72184B1;SENGAYAM;72200;REGIONAL 6;KCP;LPU 2024;Jl. LINTAS PROPINSI KALSEL-TIM, Kel. SENGAYAM, Kec. PAMUKAN BARAT, KOTABARUPULAULAUT;Kalimantan Selatan;-2.335.902;116.010.348
 PAKET 4;98572B1;Tofoi;98300;REGIONAL 6;KCP;LPU 2024;Tofoi Sumuri, Kel. Tofoi, Kec. Sumuri, Teluk Bintuni;Papua Barat;-253.649.519.708.149;133.258.602.826.533
+
 
 
 
