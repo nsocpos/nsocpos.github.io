@@ -159,6 +159,16 @@ function addSearchBox() {
   });
 }
 
+// Tambahkan ikon highlight
+const highlightIcon = L.icon({
+  iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-gold.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [0, -35],
+  shadowSize: [41, 41]
+});
+
 // === FUNGSI PENCARIAN ===
 function searchNopen(nopen) {
   // Normalisasi input: hapus spasi berlebih & jadikan string
@@ -168,20 +178,27 @@ function searchNopen(nopen) {
   );
 
   if (found) {
+    // Simpan ikon asli
+  const originalIcon = found.marker.options.icon;
+
+  // Ganti ke ikon highlight
+  found.marker.setIcon(highlightIcon);
    // Dapatkan koordinat marker
     const latlng = found.marker.getLatLng();
 
     // Animasikan perpindahan ke lokasi + buka popup
-    map.setView(latlng, 14, { animate: true }); // zoom 14 = detail kota
+    map.setView(latlng, 12, { animate: true }); // zoom 12 = detail kota
 
     // Tunda sedikit agar animasi selesai sebelum popup muncul (opsional)
     setTimeout(() => {
-      found.marker.openPopup();
-    }, 300);
-  } else {
-    alert("NOPEN tidak ditemukan: " + targetNopen);
-  }
+    found.marker.openPopup();
+    // Kembalikan ikon setelah 2 detik
+    setTimeout(() => {
+      found.marker.setIcon(originalIcon);
+    }, 2000);
+  }, 300);
 }
+
 
 
 
