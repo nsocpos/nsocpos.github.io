@@ -50,14 +50,29 @@ Papa.parse("data.csv", {
       const marker = L.marker([lat, lon], { icon }).addTo(map);
 
       marker.bindPopup(`
-        <b>${row["NAMA KANTOR"]}</b><br>
-        NOPEN: ${row["NOPEN"]}<br>
-        Regional: ${row["REGIONAL"]}<br>
-        Jenis Kantor: ${row["JENIS KANTOR"]}<br>
-        Status PSO: ${row["Status PSO"]}<br>
-        Alamat: ${row["ALAMAT"]}<br>
-        Provinsi: ${row["PROVINSI"]}
-      `);
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.5;">
+      <h3 style="margin: 0 0 8px; color: #2c3e50;">${row["NAMA KANTOR"]}</h3>
+      <dl style="margin: 8px 0; padding: 0; font-size: 0.9em;">
+      <dt style="font-weight: bold; display: inline;">NOPEN:</dt>
+      <dd style="display: inline; margin-left: 5px;">${row["NOPEN"]}</dd><br>
+
+      <dt style="font-weight: bold; display: inline;">Regional:</dt>
+      <dd style="display: inline; margin-left: 5px;">${row["REGIONAL"]}</dd><br>
+
+      <dt style="font-weight: bold; display: inline;">Jenis Kantor:</dt>
+      <dd style="display: inline; margin-left: 5px;">${row["JENIS KANTOR"]}</dd><br>
+
+      <dt style="font-weight: bold; display: inline;">Status PSO:</dt>
+      <dd style="display: inline; margin-left: 5px;">${row["Status PSO"]}</dd><br>
+
+      <dt style="font-weight: bold; display: inline;">Alamat:</dt>
+      <dd style="display: inline; margin-left: 5px;">${row["ALAMAT"]}</dd><br>
+
+      <dt style="font-weight: bold; display: inline;">Provinsi:</dt>
+      <dd style="display: inline; margin-left: 5px;">${row["PROVINSI"]}</dd>
+    </dl>
+  </div>
+`);
 
       allMarkers.push({
         nopen: row["NOPEN"],
@@ -157,5 +172,6 @@ function searchNopen(nopen) {
     alert("NOPEN tidak ditemukan!");
   }
 }
+
 
 
