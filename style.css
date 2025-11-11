@@ -98,9 +98,10 @@ html, body {
 
 /* === STYLING POPUP LEAFLET === */
 .leaflet-popup-content {
-  max-width: 300px;
+  max-width: 320px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.5;
+  padding: 10px;
 }
 
 .leaflet-popup-content h3 {
