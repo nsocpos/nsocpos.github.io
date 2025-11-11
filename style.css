@@ -98,16 +98,16 @@ html, body {
 
 /* === STYLING POPUP LEAFLET === */
 .leaflet-popup-content {
-  max-width: 320px;
+  max-width: 280px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.5;
-  padding: 10px;
+  padding: 12px;
 }
 
 .leaflet-popup-content h3 {
-  margin: 0 0 8px;
+  margin: 0 0 6px;
   color: #2c3e50;
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 
 .leaflet-popup-content dl {
@@ -123,7 +123,7 @@ html, body {
 
 .leaflet-popup-content dd {
   display: inline;
-  margin-left: 5px;
+  margin-left: 8px;
 }
 
 .leaflet-popup-content dd::after {
