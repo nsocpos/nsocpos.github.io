@@ -1675,7 +1675,7 @@ PAKET 3A;75552;Sebulu;75500;REGIONAL 6;KCP;LPU 2024;Jl. Pemuda. No 52, Kel.Sebul
 PAKET 3A;75561;Kotabangun;75500;REGIONAL 6;KCP;LPU 2024;Jl. KH. Dewantara, Kel.Kota Bangun Ulu., Kec.Kota Bangun, Kutai Kartanegara;Kalimantan Timur;-0.411237;116.984.851
 PAKET 3A;75586;Pancajaya;75500;REGIONAL 6;KCP;LPU 2024;Jl. Awang Long, Kel.Panca Jaya, Kec.Muara Kaman, Kutai Kertanegara;Kalimantan Timur;-0.166676;116.907.661
 PAKET 3A;76116;Manggarkalimantan;76100;REGIONAL 6;KCP;LPU 2024;Jl. Mulawarman RT.32 No. 13, Kel.Manggar, Kec.Balikpapan Timur, Balikpapan;Kalimantan Timur;-1.224.848;11.696.292
-PAKET 3A;76127;Karangjoang;76100;REGIONAL 6;KCP;Non LPU;Jl. Soekarno Hatta Km.13, Kel.Karangjoang, Kec.Balikpapan Utara, Balikpapan;Kalimantan Timur;-11.874.538;116.885.677
+PAKET 3A;76127;Karangjoang;76100;REGIONAL 6;KCP;Non LPU;Jl. Soekarno Hatta Km.13, Kel.Karangjoang, Kec.Balikpapan Utara, Balikpapan;Kalimantan Timur;-1.187.453;116.885.677
 PAKET 3A;76141;Penajam;76100;REGIONAL 6;KCP;Non LPU;Jl. Negara Km. 1 RT.05 No. 3, Kel.Penajam, Kec.Penajam, Penajam Paser Utara;Kalimantan Timur;-1.269.531;116.758.485
 PAKET 3A;76252;Batukajang;76100;REGIONAL 6;KCP;Non LPU;Jl. Negara KM.144 RT.9 No. 209, Kel.Batu Kajang, Kec.Batu Sopang, Pasir;Kalimantan Timur;-1.827.551;115.921.876
 PAKET 3A;76281;Kuaro;76100;REGIONAL 6;KCP;LPU 2024;Jl. Negara Km.114 RT.1 No. 06, Kel. Kuaro, Kec.Kuaro, Paser;Kalimantan Timur;-1.821.957;116.084.548
@@ -1870,7 +1870,7 @@ PAKET 3A;66226A;Tulungagungkedungwaru;65100;REGIONAL 5;KCP;Non LPU;Jl. Pahlawan 
 PAKET 3A;68121B;Jembersumbersari;68100;REGIONAL 5;KCP;Non LPU;Jl. Jawa No. 37, TEGAL BOTO, SUMBERSARI, JEMBER, JAWA TIMUR;JAWA TIMUR;-8.170.448;113.721.074
 PAKET 3A;68122A;Jemberkebonsari;68100;REGIONAL 5;KCP;Non LPU;Jl. Letjen Sutoyo No. 60, KEBONSARI, SUMBERSARI, JEMBER, JAWA TIMUR;JAWA TIMUR;-8.190.954;113.705.276
 PAKET 3A;68135A;Jemberkaliwates;68100;REGIONAL 5;KCP;Non LPU;Jl. Hayam Wuruk No. 107, SEMPURSARI, KALIWATES, JEMBER, JAWA TIMUR;JAWA TIMUR;-8.186.174;113.662.257
-PAKET 3A;76122A;Balikpapangunungguntur;76100;REGIONAL 6;KCP;Non LPU;Jl. P.Antasari RT.07 No. 54, KARANGREJO, BALIKPAPAN TENGAH, BALIKPAPAN, KALIMANTAN TIMUR;KALIMANTAN TIMUR;-12.463.737;116.841.868
+PAKET 3A;76122A;Balikpapangunungguntur;76100;REGIONAL 6;KCP;Non LPU;Jl. P.Antasari RT.07 No. 54, KARANGREJO, BALIKPAPAN TENGAH, BALIKPAPAN, KALIMANTAN TIMUR;KALIMANTAN TIMUR;-1.246.3737;116.841.868
 PAKET 3A;20858;Pangkalansusu;20700;REGIONAL 1;KCP;LPU 2024;Jl. T. Minyak, Kel. Bukit Jengkol, Kec. Pangkalan Susu, Langkat;Sumatera Utara;4.210.978;98.155.707
 PAKET 3A;22471;Sipahutar;22400;REGIONAL 1;KCP;LPU 2024;Jl. Raya Pangaribuan No. 125, Kel. Pasar Sipahutar, Kec. Sipahutar, Tapanuli Utara;Sumatera Utara;2.107.381;99.090.413
 PAKET 3A;22474;Siborongborong;22400;REGIONAL 1;KCP;Non LPU;Jl. Sentosa No. 1 Siborongborong, Kel. Pasar Siborongborong, Kec. Siborong-borong, Tapanuli Utara;Sumatera Utara;221.313.706.300.016;989.760.624.432.526
@@ -2212,7 +2212,7 @@ PAKET 3B;22881B1;Pulautello;22800;REGIONAL 1;KCP;LPU 2023;Jl. Pelabuhan No. 9 Pu
 PAKET 3B;69483;Gayam;69400;REGIONAL 5;KCP;LPU 2023;Jl. Raya Pancor, Kel. Pancor, Kec. Gayam, Sumenep;Jawa Timur;-716.683;114.354.942
 PAKET 3B;69492;Masalembu;69400;REGIONAL 5;KCP;LPU 2023;Jl. Raya Masalembu, Kel. Masalima, Kec. Masalembu, Sumenep;Jawa Timur;-7.123.186;114.776.624
 PAKET 3B;69493;Sapeken;69400;REGIONAL 5;KCP;LPU 2023;Jl. Raya Kartini No. 15, Kel. Sapeken, Kec. Sapeken, Sumenep;Jawa Timur;-7.050.218;115.656.911
-PAKET 3B;85362;Oesao;85000;REGIONAL 5;KCP;LPU 2023;Jl. Jurusan Oekabiti Kupang, Kel. Oesao, Kec. Kupang Timur, Kupang;Nusa Tenggara Timur;-1.009.994;123.813.211
+PAKET 3B;85362;Oesao;85000;REGIONAL 5;KCP;LPU 2023;Jl. Jurusan Oekabiti Kupang, Kel. Oesao, Kec. Kupang Timur, Kupang;Nusa Tenggara Timur;-10.099.940;123.813.211
 PAKET 3B;85363;Camplong;85000;REGIONAL 5;KCP;LPU 2023;Kel. Camplong, Kec. Fatuleu, Kupang;Nusa Tenggara Timur;-10.041.281;123.922.735
 PAKET 3B;85392;Bolou;85000;REGIONAL 5;KCP;LPU 2023;Jl. Raya Bolou Sabu Timur, Kel. Bolou, Kec. Sabu Timur, Kupang;Nusa Tenggara Timur;-10.295.608;121.581.967
 PAKET 3B;85882;Baranusa;85000;REGIONAL 5;KCP;LPU 2023;Jl. Raya Baranusa, Kel. Baranusa, Kec. Pantar, Alor;Nusa Tenggara Timur;-8.361.207;12.409.274
@@ -3460,7 +3460,7 @@ PAKET 4;74571;Sepangsimin;73000;REGIONAL 6;KCP;LPU 2024;Jl. PMD No. 74, Kel. Sep
 PAKET 4;73111B;Palangkarayagubernuran;73000;REGIONAL 6;KCP;Non LPU;Jl. Willea AS, Kel. Menteng, Kec. Jekan Raya, Palangkaraya;Kalimantan Tengah;-221.865;11.391.773
 PAKET 4;73111C;Palangkarayapalangka;73000;REGIONAL 6;KCP;Non LPU;Jl. Batam, Kel. Pahandut, Kec. Pahandut, Palangkaraya;Kalimantan Tengah;-2.206.508;113.938.964
 PAKET 4;73554B1;Timpah;73000;REGIONAL 6;KCP;LPU 2024;Jl. Lintas Palangka Raya Buntok RT 03, Kec. Timpah, Kel. Timpah, Kapuas;Kalimantan Tengah;-17.265;114.474
-PAKET 4;73555B1;Pujon;73000;REGIONAL 6;KCP;LPU 2024;Jl. Damang Either Rabu RT 06, Kel. Pujon, Kec. Kapuas Tengah, Kapuas;Kalimantan Tengah;-13.525;114.364
+PAKET 4;73555B1;Pujon;73000;REGIONAL 6;KCP;LPU 2024;Jl. Damang Either Rabu RT 06, Kel. Pujon, Kec. Kapuas Tengah, Kapuas;Kalimantan Tengah;-1.352.5;114.364
 PAKET 4;73761;Bangkuang;73700;REGIONAL 6;KCP;LPU 2024;Jl. Raya Bangkuang, Kel. Bangkuang, Kec. Karau Kuala, Barito Selatan;Kalimantan Tengah;-2.001.907;114.738.039
 PAKET 4;74341B1;Pundu;74300;REGIONAL 6;KCP;LPU 2024;Jl.Tjilik Riwut Km 90 No 21 Rt 04 Rw 2 Desa Pundu Kec.Cempaga Hulu Kotawaringin Timur;Kalimantan Tengah;-1.981.349;113.042.754
 PAKET 4;75113A;Samarindailir;75000;REGIONAL 6;KCP;Non LPU;Jl. Mulawarman, Kel. Karang Mumus, Kec. Samarinda Ilir, Samarinda;Kalimantan Timur;-0.504951496826244;117.155.284.881.591
@@ -3473,7 +3473,7 @@ PAKET 4;75519B1;Jahab;75500;REGIONAL 6;KCP;LPU 2024;Jl. Raya Tenggarong-Kotabang
 PAKET 4;75557B1;Kembangjanggut;75500;REGIONAL 6;KCP;Non LPU;Jl. Raya Kembang Janggut, Kel. Kembang Janggut, Kec. Kembang Janggut, Kutai Kartanegara;Kalimantan Timur;-0.143984;116.366.549
 PAKET 4;75754B1;Linggangbigung;75500;REGIONAL 6;KCP;LPU 2024;Jl. Linggang Bigung, Kel. Linggang Bigung, Kec. Linggang Bigung, Kutai Barat;Kalimantan Timur;-0.1439932;1.156.294.593
 PAKET 4;75773B1;Muaratae;75500;REGIONAL 6;KCP;LPU 2024;Jl. Trans Muara Tae Jempang Kutai Barat;Kalimantan Timur;-0.5825933;1.160.350.884
-PAKET 4;76146;Kenangan;76100;REGIONAL 6;KCP;LPU 2024;Jl. Tanjung Harapan RT.6 No. 73, Kel. Maridan/Kenangan, Kec. Sepaku, Penajam Paser Utara;Kalimantan Timur;-10.932.537;116.694.729
+PAKET 4;76146;Kenangan;76100;REGIONAL 6;KCP;LPU 2024;Jl. Tanjung Harapan RT.6 No. 73, Kel. Maridan/Kenangan, Kec. Sepaku, Penajam Paser Utara;Kalimantan Timur;-1.093.2537;116.694.729
 PAKET 4;76148;Sepaku;76100;REGIONAL 6;KCP;Non LPU;Sepaku, Kel. Sepaku, Kec. Sepaku, Penajam Paser Utara;Kalimantan Timur;-0.894618;116.678.916
 PAKET 4;76253;Muarakomam;76100;REGIONAL 6;KCP;LPU 2024;Jl. Negara Km.17 RT.6 No. 50, Kel. Muara Komam, Kec. Muara Komam, Paser;Kalimantan Timur;-1.702.339;115.781.187
 PAKET 4;76114D2;LE KPPpratamabalikapapan;76100;REGIONAL 6;LE;Non LPU;Jl. Ruhui Rahayukpapan, Kel. Gunung Bahagia, Kec. Balikpapan Selatan, Balikpapan;Kalimantan Timur;-1.240.247;116.877.156
@@ -3999,6 +3999,7 @@ PAKET 4;51351A;Kendalpatebon;51300;REGIONAL 4;KCP;Non LPU;Jl. Raya Soekarno Hatt
 PAKET 4;70881B1;Asamasam;70700;REGIONAL 6;KCP;LPU 2024;Jl. A Yani Km 122 desa Simpang Empat Sungai Baru, Jorong;Kalimantan Selatan;-3.897.075;115.093.713
 PAKET 4;72184B1;SENGAYAM;72200;REGIONAL 6;KCP;LPU 2024;Jl. LINTAS PROPINSI KALSEL-TIM, Kel. SENGAYAM, Kec. PAMUKAN BARAT, KOTABARUPULAULAUT;Kalimantan Selatan;-2.335.902;116.010.348
 PAKET 4;98572B1;Tofoi;98300;REGIONAL 6;KCP;LPU 2024;Tofoi Sumuri, Kel. Tofoi, Kec. Sumuri, Teluk Bintuni;Papua Barat;-253.649.519.708.149;133.258.602.826.533
+
 
 
 
