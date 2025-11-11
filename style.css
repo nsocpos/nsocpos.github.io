@@ -18,26 +18,24 @@ html, body {
   z-index: 9999;
 }
 
-/* Kotak pencarian */
+/* Input transparan, tanpa background box */
 .search-wrapper {
   position: relative;
-  background: rgba(255,255,255,0.95);
-  border: 1px solid #bbb;
-  border-radius: 8px;
-  box-shadow: none; /* tanpa bayangan */
-  padding: 6px 8px;
+  background: transparent;  /* tanpa kotak belakang */
+  border: none;
+  box-shadow: none;
   width: 340px;
 }
 
-/* Input teks */
 .search-wrapper input {
   width: 100%;
-  padding: 8px 35px 8px 35px; /* ruang untuk ikon kiri */
+  padding: 8px 35px 8px 35px;
   border: 1px solid #ccc;
-  border-radius: 6px;
+  border-radius: 20px;
   font-size: 14px;
   outline: none;
-  box-shadow: none; /* pastikan tidak ada efek bayangan */
+  background: rgba(255, 255, 255, 0.7); /* sedikit transparan biar tetap terbaca */
+  backdrop-filter: blur(4px); /* efek kaca ringan */
 }
 
 /* Ikon pencarian di dalam input */
@@ -50,25 +48,32 @@ html, body {
   font-size: 16px;
 }
 
-/* === DAFTAR SUGGESTION === */
-.suggestions {
-  position: absolute;
-  top: 42px;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  max-height: 200px;
-  overflow-y: auto;
-  z-index: 10000;
+/* === LEGEND “REGIONAL” DENGAN KOTAK === */
+.legend {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(255,255,255,0.9); /* ada kotak putih lembut */
+  padding: 10px 14px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 999;
+  font-family: Arial, sans-serif;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
-.suggestion-item {
-  padding: 6px 10px;
-  cursor: pointer;
+.legend h4 {
+  margin: 0 0 5px;
+  font-weight: bold;
+  font-size: 14px;
 }
 
-.suggestion-item:hover {
-  background-color: #f0f0f0;
+.legend i {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border-radius: 3px;
 }
