@@ -171,33 +171,29 @@ const highlightIcon = L.icon({
 
 // === FUNGSI PENCARIAN ===
 function searchNopen(nopen) {
-  // Normalisasi input: hapus spasi berlebih & jadikan string
   const targetNopen = nopen.toString().trim();
   const found = allMarkers.find(
-    (m) => m.nopen.toString().trim() === nopen.toString().trim()
+    (m) => m.nopen.toString().trim() === targetNopen
   );
 
   if (found) {
-    // Simpan ikon asli
-  const originalIcon = found.marker.options.icon;
-
-  // Ganti ke ikon highlight
-  found.marker.setIcon(highlightIcon);
-   // Dapatkan koordinat marker
+    const originalIcon = found.marker.options.icon;
+    found.marker.setIcon(highlightIcon);
     const latlng = found.marker.getLatLng();
 
-    // Animasikan perpindahan ke lokasi + buka popup
-    map.setView(latlng, 12, { animate: true }); // zoom 12 = detail kota
+    map.setView(latlng, 14, { animate: true }); // zoom 14 lebih baik
 
-    // Tunda sedikit agar animasi selesai sebelum popup muncul (opsional)
     setTimeout(() => {
-    found.marker.openPopup();
-    // Kembalikan ikon setelah 2 detik
-    setTimeout(() => {
-      found.marker.setIcon(originalIcon);
-    }, 2000);
-  }, 300);
+      found.marker.openPopup();
+      setTimeout(() => {
+        found.marker.setIcon(originalIcon);
+      }, 2000);
+    }, 300);
+  } else {
+    alert("NOPEN tidak ditemukan: " + targetNopen);
+  }
 }
+
 
 
 
