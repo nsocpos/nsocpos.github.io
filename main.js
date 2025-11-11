@@ -50,7 +50,7 @@ Papa.parse("data.csv", {
       const marker = L.marker([lat, lon], { icon }).addTo(map);
 
       marker.bindPopup(`
-      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.5;">
+      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1;">
       <h3 style="margin: 0 0 8px; color: #2c3e50;">${row["NAMA KANTOR"]}</h3>
       <dl style="margin: 8px 0; padding: 0; font-size: 0.9em;">
       <dt style="font-weight: bold; display: inline;">NOPEN:</dt>
@@ -181,7 +181,7 @@ function searchNopen(nopen) {
     found.marker.setIcon(highlightIcon);
     const latlng = found.marker.getLatLng();
 
-    map.setView(latlng, 8, { animate: true }); // zoom 12 lebih baik
+    map.setView(latlng, 10, { animate: true }); // zoom 12 lebih baik
 
     setTimeout(() => {
       found.marker.openPopup();
@@ -193,6 +193,7 @@ function searchNopen(nopen) {
     alert("NOPEN tidak ditemukan: " + targetNopen);
   }
 }
+
 
 
 
