@@ -181,7 +181,7 @@ function searchNopen(nopen) {
     found.marker.setIcon(highlightIcon);
     const latlng = found.marker.getLatLng();
 
-    map.setView(latlng, 14, { animate: true }); // zoom 14 lebih baik
+    map.setView(latlng, 12, { animate: true }); // zoom 12 lebih baik
 
     setTimeout(() => {
       found.marker.openPopup();
@@ -193,6 +193,7 @@ function searchNopen(nopen) {
     alert("NOPEN tidak ditemukan: " + targetNopen);
   }
 }
+
 
 
 
