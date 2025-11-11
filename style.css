@@ -11,13 +11,10 @@ html, body {
 
 /* === LEGEND === */
 .legend {
-  background: white;
-  padding: 10px;
-  line-height: 18px;
-  color: #333;
-  border-radius: 6px;
-  box-shadow: 0 0 8px rgba(0,0,0,0.2);
-  font-size: 14px;
+  position: fixed;
+  top: 80px; 
+  left: 20px;
+  z-index: 999;
 }
 .legend h4 {
   margin: 0 0 5px;
