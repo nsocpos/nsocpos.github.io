@@ -28,7 +28,7 @@ PAKET 1;40400;SPP BANDUNG;-;REGIONAL 3;SPP;Non LPU;Jl. Soekarno Hatta No. 558, K
 PAKET 1;41300;KARAWANG;-;REGIONAL 3;KCU;Non LPU;Jl. Alun-Alun Selatan No. 1, Kel. Nagasari, Kec. Karawang Barat, Karawang;Jawa Barat;-6.310.921;107.293.386
 PAKET 1;45100;CIREBON;-;REGIONAL 3;KCU;Non LPU;Jl. Yos Sudarso No. 9, Kel. Lemah Wungkuk, Kec. Lemah Wungkuk, Cirebon;Jawa Barat;-6.719.652;108.571.988
 PAKET 1;50000;SEMARANG;-;REGIONAL 4;Kantor Regional;Non LPU;Jl. Pemuda No. 4 Semarang, Kel. Kauman, Kec. Semarang Tengah, Semarang;Jawa Tengah;-6.969.879;110.424.185
-PAKET 1;50004;KANTOR REGIONAL 4 SEMARANG;-;REGIONAL 5;SPP;Non LPU;Jl. Sisingamangaraja No. 45, Semarang 50253, Kel. Kaliwiru, Kec. Candisari, Semarang;Jawa Tengah;-7.015.406;110.423.944
+PAKET 1;50004;KANTOR REGIONAL 4 SEMARANG;-;REGIONAL 4;SPP;Non LPU;Jl. Sisingamangaraja No. 45, Semarang 50253, Kel. Kaliwiru, Kec. Candisari, Semarang;Jawa Tengah;-7.015.406;110.423.944
 PAKET 1;50400;SPP SEMARANG;-;REGIONAL 4;KCU;Non LPU;Jl. Imam Barjo sh No. 3, Kel. Peleburan, Kec. Semarang Selatan, Semarang;Jawa Tengah;-6.993.282;11.042.231
 PAKET 1;51100;PEKALONGAN;-;REGIONAL 4;KCU;Non LPU;Jl. Cendrawasih No. 1 Pekalongan, Kel. Kandang Panjang, Kec. Pekalongan Utara, Kota Pekalongan;Jawa Tengah;-6.877.677;109.674.098
 PAKET 1;53100;PURWOKERTO;-;REGIONAL 4;KCU;Non LPU;Jl. Jend. Sudirman No. 435, Kel. Kranji, Kec. Purwokerto Timur, Banyumas;Jawa Tengah;-7.427.207;109.239.047
@@ -37,9 +37,9 @@ PAKET 1;55400;SPP YOGYAKARTA;-;REGIONAL 4;SPP;Non LPU;Jl. Plemburan No. 7, Kel. 
 PAKET 1;57100;SOLO;-;REGIONAL 4;KCU;Non LPU;Jl. Jend. Sudirman No. 8 Solo 57111 Kel. Kampung Baru Pasar, Kec. Kliwon, Surakarta;Jawa Tengah;-7.571.033;110.829.622
 PAKET 1;60000;SURABAYA;-;REGIONAL 5;KCU;Non LPU;Jl. Kebon Rojo No. 10, Kel. Krembangan Selatan, Kec. Krembangan, Surabaya;Jawa Timur;-7.242.784;112.737.454
 PAKET 1;60004;KANTOR REGIONAL 5 SURABAYA;-;REGIONAL 6;KCU;Non LPU;Jl. Krembangan Barat 73 - 75, Kec. Krembangan, Surabaya 60175;Jawa Timur;-723.606;112.734.167
-PAKET 1;63100;MADIUN;-;REGIONAL 6;KCU;Non LPU;Jl. Pahlawan No. 24 Madiun, Kel. Lor, Kec. Mangunharjo, Madiun;Jawa Timur;-7.619.312;111.521.501
-PAKET 1;65100;MALANG;-;REGIONAL 6;KCU;Non LPU;Jl. Merdeka Selatan No. 5, Kel. Kauman, Kec. Klojen, Malang;Jawa Timur;-7.983.654;112.630.393
-PAKET 1;68100;JEMBER;-;REGIONAL 6;KCU;Non LPU;Jl. Sudirman No. 5 Jember 68114 Jember, Kel. Lor, Kec. Patrang, Jember;Jawa Timur;-8.167.933;113.701.957
+PAKET 1;63100;MADIUN;-;REGIONAL 5;KCU;Non LPU;Jl. Pahlawan No. 24 Madiun, Kel. Lor, Kec. Mangunharjo, Madiun;Jawa Timur;-7.619.312;111.521.501
+PAKET 1;65100;MALANG;-;REGIONAL 5;KCU;Non LPU;Jl. Merdeka Selatan No. 5, Kel. Kauman, Kec. Klojen, Malang;Jawa Timur;-7.983.654;112.630.393
+PAKET 1;68100;JEMBER;-;REGIONAL 5;KCU;Non LPU;Jl. Sudirman No. 5 Jember 68114 Jember, Kel. Lor, Kec. Patrang, Jember;Jawa Timur;-8.167.933;113.701.957
 PAKET 1;80000;DENPASAR;-;REGIONAL 6;KCU;Non LPU;Jl. Raya Puputan Renon, Kel. Sumerta Klod, Kec. Denpasar Selatan, Denpasar;Bali;-8.672.483;11.522.948
 PAKET 1;83000;MATARAM;-;REGIONAL 6;SPP;Non LPU;Jl. Sriwijaya Mataram 83161, Kel. Mataram, Kec. Mataram, Mataram;Nusa Tenggara Barat;-859.461;11.610.312
 PAKET 1;85000;KUPANG;-;REGIONAL 6;KCU;Non LPU;Jl. Palapa No. 1Kupang 85111, Kel. Oebobo, Kec. Kelapa Lima, Kupang;Nusa Tenggara Timur;-10.167.953;123.597.875
@@ -174,10 +174,10 @@ PAKET 2A;27400;SAWAHLUNTO;-;REGIONAL 1;KC;Non LPU;Jl. A. Yani No. 1 Sawahlunto 2
 PAKET 2A;29200;TEMBILAHAN;-;REGIONAL 1;KC;Non LPU;Jl. Hang Tuah No. 3 Tembilahan, Kel. Tembilahan Kota, Kec. Tembilahan Kota, Indragiri Hilir;Riau;-0.325884;103.159.126
 PAKET 2A;45300;SUMEDANG;-;REGIONAL 3;KC;Non LPU;Jl. P.Geusan Ulun No. 82, Kel. Regol Wetan, Kec. Sumedang Selatan, Sumedang;Jawa Barat;-6.856.264;107.921.887
 PAKET 2A;54100;PURWOREJO;-;REGIONAL 5;KC;Non LPU;Jl. Jend. A Yani No. 2 Pwr 54111, Kel. Purworejo, Kec. Purworejo, Purworejo;Jawa Tengah;-771.335;11.001.109
-PAKET 2A;56200;TEMANGGUNG;-;REGIONAL 5;KC;Non LPU;Jl. S Parman 5 Temanggung, Kel. Temanggung, Kec. Temanggung;Jawa Tengah;-7.316.818;110.178.927
-PAKET 2A;57500;SUKOHARJO;-;REGIONAL 5;KC;Non LPU;Jl. Wandyopranoto No. 12, Kel. Joho, Kec. Sukoharjo, Sukoharjo;Jawa Tengah;-7.684.121;110.842.084
+PAKET 2A;56200;TEMANGGUNG;-;REGIONAL 4;KC;Non LPU;Jl. S Parman 5 Temanggung, Kel. Temanggung, Kec. Temanggung;Jawa Tengah;-7.316.818;110.178.927
+PAKET 2A;57500;SUKOHARJO;-;REGIONAL 4;KC;Non LPU;Jl. Wandyopranoto No. 12, Kel. Joho, Kec. Sukoharjo, Sukoharjo;Jawa Tengah;-7.684.121;110.842.084
 PAKET 2A;58100;PURWODADIGROBOGAN;-;REGIONAL 5;KC;Non LPU;Jl. Jend. Sudirman No. 4 Purwodadi, Kel. Purwodadi, Kec. Purwodadi, Grobogan;Jawa Tengah;-708.205;110.916.776
-PAKET 2A;58200;BLORA;-;REGIONAL 5;KC;Non LPU;Jl. Pemuda No. 5 Blora 58211, Kel. Mlangsen, Kec. Blora, Kota Blora;Jawa Tengah;-6.969.224;111.414.382
+PAKET 2A;58200;BLORA;-;REGIONAL 4;KC;Non LPU;Jl. Pemuda No. 5 Blora 58211, Kel. Mlangsen, Kec. Blora, Kota Blora;Jawa Tengah;-6.969.224;111.414.382
 PAKET 2A;61300;MOJOKERTO;-;REGIONAL 5;KC;Non LPU;Jl. A Yani No. 5, Mojokerto 61311, Kel. Purwotengah Kec. Magersari, Mojokerto;Jawa Timur;-7.464.233;112.434.548
 PAKET 2A;61400;JOMBANG;-;REGIONAL 5;KC;Non LPU;Jl. KH Wahid Hasyim No. 184, Kel. Kepanjen, Kec. Jombang, Jombang;Jawa Timur;-7.555.189;112.235.094
 PAKET 2A;62100;BOJONEGORO;-;REGIONAL 5;KC;Non LPU;Jl. Trunojoyo No. 1 Bojonegoro, Kel. Kepatihan, Kec. Bojonegoro, Bojonegoro;Jawa Timur;-7.151.879;111.881.571
@@ -187,7 +187,7 @@ PAKET 2A;63400;PONOROGO;-;REGIONAL 5;KC;Non LPU;Jl. Soekarno Hatta No. 55, Kel. 
 PAKET 2A;66100;BLITAR;-;REGIONAL 5;KC;Non LPU;Jl. Mastrip No. 87 Blitar 66111, Kel. Kepanjen Kidul, Kec. Kepanjen Kidul, Blitar;Jawa Timur;-8.100.676;112.163.191
 PAKET 2A;66200;TULUNGAGUNG;-;REGIONAL 5;KC;Non LPU;Jl. Kartini No. 31, Kel. Kauman, Kec. Tulungagung, Tulungagung;Jawa Timur;-8.065.104;11.189.991
 PAKET 2A;67200;PROBOLINGGO;-;REGIONAL 5;KC;Non LPU;Jl. Surojo No. 33, Kel. Tisnonegaran, Kec. Mayangan, Probolinggo;Jawa Timur;-7.748.477;113.215.691
-PAKET 2A;67300;LUMAJANG;-;REGIONAL 6;KC;Non LPU;Jl. Dr.Sutomo No. 19 Lumajang, Kel. Tompokersan, Kec. Lumajang, Lumajang;Jawa Timur;-8.128.457;113.223.183
+PAKET 2A;67300;LUMAJANG;-;REGIONAL 5;KC;Non LPU;Jl. Dr.Sutomo No. 19 Lumajang, Kel. Tompokersan, Kec. Lumajang, Lumajang;Jawa Timur;-8.128.457;113.223.183
 PAKET 2A;80500;GIANYAR;-;REGIONAL 5;KC;Non LPU;Jl. Abimanyu No. 4, Gianyar 80511, Kel. Abianbase, Kec. Gianyar, Gianyar;Bali;-8.546.221;115.323.678
 PAKET 2A;81100;SINGARAJA;-;REGIONAL 5;KC;Non LPU;Jl. Gajahmada No. 156, Kel. Banjar Bali, Kec. Buleleng, Buleleng;Bali;-8.108.963;115.091.075
 PAKET 2A;82100;TABANAN;-;REGIONAL 5;KC;Non LPU;Jl. Pahlawan No. 4, Kel. Delod Peken, Kec. Tabanan, Tabanan;Bali;-8.540.331;115.134.648
@@ -3738,7 +3738,7 @@ PAKET 4;40272A;Bandungkebonwaru;40000;REGIONAL 3;KCP;Non LPU;Jl. Jakarta No. 34 
 PAKET 4;40286B;Bandungsekejati;40000;REGIONAL 3;KCP;Non LPU;Jl. Sukarno Hatta No. 558;JAWA BARAT;-6.942.949;107.650.737
 PAKET 4;41115D2;LE MPP Madukara;41100;REGIONAL 3;LE;Non LPU;Jl. Ahmad Yani No.5;JAWA BARAT;-6.543.611;10.744.403
 PAKET 4;41348B1;Wanasari;41300;REGIONAL 3;KCP;Non LPU;Pasar Kaligandu Wanajaya RT 001 RW 001;JAWA BARAT;-6.387.050.226;1.072.248.451
-PAKET 4;43214D1;LE PAJAK CIANJUR;43200;REGIONAL 3;LE;Non LPU;JL. ARIF RAHMAN NO.55;JAWA BARAT;-6.634.485;106.804.777
+PAKET 4;43214D1;LE PAJAK CIANJUR;43200;REGIONAL 3;LE;Non LPU;JL. ARIF RAHMAN NO.55;JAWA BARAT;-6.815076956860898;107.14837868083278
 PAKET 4;46492B1;Salopa;46100;REGIONAL 3;KCP;LPU 2024;Jl Raya Salopa no 112 Rt 01/Rw 03;JAWA BARAT;-751.811;10.827.082
 PAKET 4;51314D1;LE Kendalkantorpajak;51300;REGIONAL 4;LE;Non LPU;Jl. Soekarnohatta No. 210;JAWA TENGAH;-6.921.477;110.183.687
 PAKET 4;53257D1;LE Kpppratamamajenang;53200;REGIONAL 4;LE;Non LPU;Jl Raya Majenang - Wanareja;JAWA TENGAH;-730.070.501.404.363;108.755.915.006.837
@@ -3999,6 +3999,7 @@ PAKET 4;51351A;Kendalpatebon;51300;REGIONAL 4;KCP;Non LPU;Jl. Raya Soekarno Hatt
 PAKET 4;70881B1;Asamasam;70700;REGIONAL 6;KCP;LPU 2024;Jl. A Yani Km 122 desa Simpang Empat Sungai Baru, Jorong;Kalimantan Selatan;-3.897.075;115.093.713
 PAKET 4;72184B1;SENGAYAM;72200;REGIONAL 6;KCP;LPU 2024;Jl. LINTAS PROPINSI KALSEL-TIM, Kel. SENGAYAM, Kec. PAMUKAN BARAT, KOTABARUPULAULAUT;Kalimantan Selatan;-2.335.902;116.010.348
 PAKET 4;98572B1;Tofoi;98300;REGIONAL 6;KCP;LPU 2024;Tofoi Sumuri, Kel. Tofoi, Kec. Sumuri, Teluk Bintuni;Papua Barat;-253.649.519.708.149;133.258.602.826.533
+
 
 
 
