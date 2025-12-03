@@ -18,12 +18,10 @@ html, body {
   z-index: 9999;
 }
 
-/* Input transparan, tanpa background box */
 .search-wrapper {
   position: relative;
-  background: transparent;  /* tanpa kotak belakang */
+  background: transparent;
   border: none;
-  box-shadow: none;
   width: 340px;
 }
 
@@ -34,11 +32,10 @@ html, body {
   border-radius: 20px;
   font-size: 14px;
   outline: none;
-  background: rgba(255, 255, 255, 0.7); /* sedikit transparan biar tetap terbaca */
-  backdrop-filter: blur(4px); /* efek kaca ringan */
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
 }
 
-/* Ikon pencarian di dalam input */
 .search-wrapper i {
   position: absolute;
   top: 50%;
@@ -53,18 +50,17 @@ html, body {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: rgba(255,255,255,0.9); /* ada kotak putih lembut */
-  padding: 10px 14px;
-  border-radius: 8px;
+  background: rgba(255,255,255,0.9);
+  padding: 12px 16px;
+  border-radius: 10px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-  z-index: 999;
+  z-index: 9999;
   font-family: Arial, sans-serif;
   font-size: 13px;
-  line-height: 1.4;
 }
 
 .legend h4 {
-  margin: 0 0 5px;
+  margin: 0 0 6px;
   font-weight: bold;
   font-size: 14px;
 }
@@ -78,29 +74,22 @@ html, body {
   border-radius: 3px;
 }
 
-/* === STYLING SUGGESTION ITEM === */
-.suggestion-item {
-  padding: 8px 12px;
+/* === CHECKBOX FILTER === */
+.filter-box {
+  margin-top: 10px;
+}
+
+.filter-box label {
+  display: block;
+  margin-bottom: 4px;
   cursor: pointer;
-  border-bottom: 1px solid #eee;
-  transition: background-color 0.2s;
 }
 
-.suggestion-item:hover {
-  background-color: #f5f5f5;
-  color: #2c3e50;
-}
-
-.suggestion-item strong {
-  font-size: 1.1em;
-  color: #27ae60;
-}
-
-/* === STYLING POPUP LEAFLET === */
+/* === POPUP LEAFLET === */
 .leaflet-popup-content {
   max-width: 280px;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1;
+  line-height: 1.2;
   padding: 10px;
 }
 
