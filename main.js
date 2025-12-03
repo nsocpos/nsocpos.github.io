@@ -8,20 +8,18 @@ const PaketColors = {
   "PAKET 4": "violet"
 };
 
-// Inisialisasi peta di tengah Indonesia
+// Inisialisasi map
 const map = L.map("map").setView([-2.5, 118], 5);
 
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  maxZoom: 18,
-  attribution: "&copy; OpenStreetMap contributors"
+  maxZoom: 18
 }).addTo(map);
 
-// === ICON BALON ===
+// ICON MARKER
 function createBalloonIcon(color) {
   return L.icon({
     iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
-    shadowUrl:
-      "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+    shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
     iconSize: [25, 41],
     iconAnchor: [12, 41],
     popupAnchor: [0, -35],
@@ -32,11 +30,12 @@ function createBalloonIcon(color) {
 let allMarkers = [];
 let allNopen = [];
 
-// === LOAD CSV ===
+// LOAD CSV
 Papa.parse("data.csv", {
   download: true,
   header: true,
   complete: function (results) {
+
     results.data.forEach((row) => {
       const lat = parseFloat(row["LATITUDE"]);
       const lon = parseFloat(row["LONGITUDE"]);
@@ -46,37 +45,23 @@ Papa.parse("data.csv", {
       const colorName = PaketColors[paket] || "gray";
       const icon = createBalloonIcon(colorName);
 
-      const marker = L.marker([lat, lon], { icon }).addTo(map);
+      const marker = L.marker([lat, lon], { icon });
 
       marker.bindPopup(`
-        <div style="font-family: 'Segoe UI'; line-height: 1;">
-        <h3 style="margin: 0 0 8px;">${row["NAMA KANTOR"]}</h3>
-        <dl style="margin: 8px 0; padding: 0; font-size: 0.9em;">
-        <dt style="font-weight: bold; display: inline;">NOPEN:</dt>
-        <dd style="display: inline; margin-left: 5px;">${row["NOPEN"]}</dd><br>
-
-        <dt style="font-weight: bold; display: inline;">Paket:</dt>
-        <dd style="display: inline; margin-left: 5px;">${row["Paket"]}</dd><br>
-
-        <dt style="font-weight: bold; display: inline;">Regional:</dt>
-        <dd style="display: inline; margin-left: 5px;">${row["REGIONAL"]}</dd><br>
-
-        <dt style="font-weight: bold; display: inline;">Jenis Kantor:</dt>
-        <dd style="display: inline; margin-left: 5px;">${row["JENIS KANTOR"]}</dd><br>
-
-        <dt style="font-weight: bold; display: inline;">Status PSO:</dt>
-        <dd style="display: inline; margin-left: 5px;">${row["Status PSO"]}</dd><br>
-
-        <dt style="font-weight: bold; display: inline;">Alamat:</dt>
-        <dd style="display: inline; margin-left: 5px;">${row["ALAMAT"]}</dd><br>
-
-        <dt style="font-weight: bold; display: inline;">Provinsi:</dt>
-        <dd style="display: inline; margin-left: 5px;">${row["PROVINSI"]}</dd>
-      </dl>
-    </div>
-  `);
+        <h3>${row["NAMA KANTOR"]}</h3>
+        <dl>
+          <dt>NOPEN:</dt><dd>${row["NOPEN"]}</dd>
+          <dt>Paket:</dt><dd>${row["Paket"]}</dd>
+          <dt>Regional:</dt><dd>${row["REGIONAL"]}</dd>
+          <dt>Jenis Kantor:</dt><dd>${row["JENIS KANTOR"]}</dd>
+          <dt>Status PSO:</dt><dd>${row["Status PSO"]}</dd>
+          <dt>Alamat:</dt><dd>${row["ALAMAT"]}</dd>
+          <dt>Provinsi:</dt><dd>${row["PROVINSI"]}</dd>
+        </dl>
+      `);
 
       allMarkers.push({
+        paket: row["Paket"],
         nopen: row["NOPEN"],
         nama: row["NAMA KANTOR"],
         marker
@@ -88,29 +73,33 @@ Papa.parse("data.csv", {
       });
     });
 
-    addLegend();
     addSearchBox();
+    applyFilter(); // tampilkan marker pertama kali
+    initFilter();
   }
 });
 
-// === LEGEND BERDASARKAN PAKET ===
-function addLegend() {
-  const legend = L.control({ position: "bottomright" });
-  legend.onAdd = function () {
-    const div = L.DomUtil.create("div", "info legend");
-    div.innerHTML = "<h4>Paket Layanan</h4>";
-    for (const p in PaketColors) {
-      const color = PaketColors[p];
-      div.innerHTML += `
-        <i style="background:${color}; width:15px; height:15px; display:inline-block; margin-right:6px;"></i> ${p}<br>
-      `;
-    }
-    return div;
-  };
-  legend.addTo(map);
+// === FILTER CHECKBOX ===
+function initFilter() {
+  document.querySelectorAll(".paketFilter").forEach(cb => {
+    cb.addEventListener("change", applyFilter);
+  });
 }
 
-// === SEARCH BOX ===
+function applyFilter() {
+  const selected = [...document.querySelectorAll(".paketFilter:checked")]
+    .map(cb => cb.value);
+
+  allMarkers.forEach(item => {
+    if (selected.includes(item.paket)) {
+      map.addLayer(item.marker);
+    } else {
+      map.removeLayer(item.marker);
+    }
+  });
+}
+
+// === SEARCH ===
 function addSearchBox() {
   const searchBox = L.control({ position: "topleft" });
 
@@ -136,19 +125,21 @@ function addSearchBox() {
 
     if (value.length < 2) return;
 
-    const filtered = allNopen.filter((item) =>
+    const filtered = allNopen.filter(item =>
       item.label.toLowerCase().includes(value)
     );
 
-    filtered.slice(0, 10).forEach((item) => {
+    filtered.slice(0, 10).forEach(item => {
       const div = document.createElement("div");
       div.textContent = item.label;
       div.classList.add("suggestion-item");
+
       div.addEventListener("click", () => {
         input.value = item.value;
         suggestions.innerHTML = "";
         searchNopen(item.value);
       });
+
       suggestions.appendChild(div);
     });
   });
@@ -159,32 +150,29 @@ function addSearchBox() {
 }
 
 const highlightIcon = L.icon({
-  iconUrl:
-    'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-gold.png',
-  shadowUrl:
-    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconUrl: "https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-gold.png",
+  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
   iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [0, -35],
-  shadowSize: [41, 41]
+  iconAnchor: [12, 41]
 });
 
-// === FUNGSI PENCARIAN ===
+// FUNC SEARCH
 function searchNopen(nopen) {
-  const targetNopen = nopen.toString().trim();
-  const found = allMarkers.find(m => m.nopen.toString().trim() === targetNopen);
+  const target = allMarkers.find(
+    m => m.nopen.toString().trim() === nopen.toString().trim()
+  );
 
-  if (found) {
-    const originalIcon = found.marker.options.icon;
-    found.marker.setIcon(highlightIcon);
-    const latlng = found.marker.getLatLng();
-    map.setView(latlng, 12, { animate: true });
+  if (!target) return alert("NOPEN tidak ditemukan!");
 
-    setTimeout(() => {
-      found.marker.openPopup();
-      setTimeout(() => found.marker.setIcon(originalIcon), 2000);
-    }, 300);
-  } else {
-    alert("NOPEN tidak ditemukan: " + targetNopen);
-  }
+  // auto centering
+  map.setView(target.marker.getLatLng(), 12);
+
+  // highlight
+  const originalIcon = target.marker.options.icon;
+  target.marker.setIcon(highlightIcon);
+
+  setTimeout(() => target.marker.setIcon(originalIcon), 2000);
+
+  // buka popup
+  setTimeout(() => target.marker.openPopup(), 300);
 }
