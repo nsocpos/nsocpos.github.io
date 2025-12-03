@@ -188,3 +188,120 @@ function searchNopen(nopen) {
     alert("NOPEN tidak ditemukan: " + targetNopen);
   }
 }
+
+// =====================================================
+//  PANEL FILTER PAKET + CHECKBOX DINAMIS
+// =====================================================
+
+// Tambahkan CSS panel (biar tidak perlu edit style.css)
+const style = document.createElement("style");
+style.innerHTML = `
+  #filter-panel {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 9999;
+    background: white;
+    padding: 10px 12px;
+    border-radius: 8px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.3);
+    font-size: 14px;
+    width: 190px;
+  }
+  #filter-panel select {
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+  }
+  .paket-checkbox {
+    margin-top: 10px;
+    padding-left: 5px;
+    display: none;
+  }
+`;
+document.head.appendChild(style);
+
+// ==== TAMBAHKAN PANEL FILTER KE MAP ====
+const filterPanel = L.control({ position: "topleft" });
+
+filterPanel.onAdd = function () {
+  const div = L.DomUtil.create("div", "filter-panel");
+  div.id = "filter-panel";
+
+  div.innerHTML = `
+    <label><b>Pilih Paket:</b></label>
+    <select id="paketSelect">
+      <option value="">-- Pilih Paket --</option>
+      <option value="PAKET 1">PAKET 1</option>
+      <option value="PAKET 2A">PAKET 2A</option>
+      <option value="PAKET 2B">PAKET 2B</option>
+      <option value="PAKET 3A">PAKET 3A</option>
+      <option value="PAKET 3B">PAKET 3B</option>
+      <option value="PAKET 4">PAKET 4</option>
+    </select>
+
+    <!-- Checkbox PAKET 1 -->
+    <div class="paket-checkbox" id="box-PAKET 1">
+      <label><input type="checkbox"> Paket 1 - Item A</label><br>
+      <label><input type="checkbox"> Paket 1 - Item B</label>
+    </div>
+
+    <!-- Checkbox PAKET 2A -->
+    <div class="paket-checkbox" id="box-PAKET 2A">
+      <label><input type="checkbox"> Paket 2A - Item A</label><br>
+      <label><input type="checkbox"> Paket 2A - Item B</label>
+    </div>
+
+    <!-- Checkbox PAKET 2B -->
+    <div class="paket-checkbox" id="box-PAKET 2B">
+      <label><input type="checkbox"> Paket 2B - Item A</label><br>
+      <label><input type="checkbox"> Paket 2B - Item B</label>
+    </div>
+
+    <!-- Checkbox PAKET 3A -->
+    <div class="paket-checkbox" id="box-PAKET 3A">
+      <label><input type="checkbox"> Paket 3A - Item A</label><br>
+      <label><input type="checkbox"> Paket 3A - Item B</label>
+    </div>
+
+    <!-- Checkbox PAKET 3B -->
+    <div class="paket-checkbox" id="box-PAKET 3B">
+      <label><input type="checkbox"> Paket 3B - Item A</label><br>
+      <label><input type="checkbox"> Paket 3B - Item B</label>
+    </div>
+
+    <!-- Checkbox PAKET 4 -->
+    <div class="paket-checkbox" id="box-PAKET 4">
+      <label><input type="checkbox"> Paket 4 - Item A</label><br>
+      <label><input type="checkbox"> Paket 4 - Item B</label>
+    </div>
+  `;
+  return div;
+};
+
+filterPanel.addTo(map);
+
+
+// =====================================================
+// LOGIKA MENAMPILKAN CHECKBOX SESUAI PAKET TERPILIH
+// =====================================================
+
+setTimeout(() => {
+  const paketSelect = document.getElementById("paketSelect");
+  const allBoxes = document.querySelectorAll(".paket-checkbox");
+
+  paketSelect.addEventListener("change", function () {
+    const selected = this.value;
+
+    // Sembunyikan semua box
+    allBoxes.forEach(b => b.style.display = "none");
+
+    // Tampilkan hanya yang sesuai
+    if (selected) {
+      const box = document.getElementById("box-" + selected);
+      if (box) box.style.display = "block";
+    }
+  });
+}, 500);
+
+
