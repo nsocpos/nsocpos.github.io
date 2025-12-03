@@ -8,6 +8,15 @@ const PaketColors = {
   "PAKET 4": "violet"
 };
 
+const PaketInfo = {
+  "PAKET 1": "Main link 100 Mbps + Backup 100 Mbps + SDWAN (active-active)",
+  "PAKET 2A": "Main link 50 Mbps + Backup 50 Mbps + SDWAN (active-active)",
+  "PAKET 2B": "Main link 50 Mbps + Backup VSAT up to 6 Mbps + SDWAN (active-passive)",
+  "PAKET 3A": "Main link 20 Mbps + Backup GSM M2M + SDWAN (active-standby)",
+  "PAKET 3B": "Main link VSAT up to 2 Mbps + Backup GSM M2M + SDWAN (active-standby)",
+  "PAKET 4": "GSM M2M + WiFi LTE Router + ZTNA"
+};
+
 // Inisialisasi map
 const map = L.map("map").setView([-2.5, 118], 5);
 
@@ -176,3 +185,4 @@ function searchNopen(nopen) {
   // buka popup
   setTimeout(() => target.marker.openPopup(), 300);
 }
+
