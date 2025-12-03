@@ -5,29 +5,73 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Peta Kantor Regional</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
-  <!-- PapaParse untuk baca CSV -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- PapaParse CSV -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <link rel="stylesheet" href="style.css">
-  <script defer src="main.js"></script>
+  <script type="module" src="main.js"></script>
 </head>
 
 <body>
 
-  <!-- CHECKBOX FILTER -->
-  <div class="filter-box">
-    <h4>Filter Paket</h4>
-    <label><input type="checkbox" class="paketFilter" value="PAKET 1" checked> Paket 1</label><br>
-    <label><input type="checkbox" class="paketFilter" value="PAKET 2A" checked> Paket 2A</label><br>
-    <label><input type="checkbox" class="paketFilter" value="PAKET 2B" checked> Paket 2B</label><br>
-    <label><input type="checkbox" class="paketFilter" value="PAKET 3A" checked> Paket 3A</label><br>
-    <label><input type="checkbox" class="paketFilter" value="PAKET 3B" checked> Paket 3B</label><br>
-    <label><input type="checkbox" class="paketFilter" value="PAKET 4" checked> Paket 4</label>
+  <!-- === PANEL FILTER PAKET === -->
+  <div id="filter-panel">
+    <label for="paketSelect"><b>Pilih Paket:</b></label>
+    <select id="paketSelect">
+      <option value="">-- Pilih Paket --</option>
+      <option value="PAKET 1">PAKET 1</option>
+      <option value="PAKET 2A">PAKET 2A</option>
+      <option value="PAKET 2B">PAKET 2B</option>
+      <option value="PAKET 3A">PAKET 3A</option>
+      <option value="PAKET 3B">PAKET 3B</option>
+      <option value="PAKET 4">PAKET 4</option>
+    </select>
+
+    <div class="paket-checkbox" id="PAKET 1">
+      <label><input type="checkbox"> Main + Backup 100 Mbps</label>
+    </div>
+
+    <div class="paket-checkbox" id="PAKET 2A">
+      <label><input type="checkbox"> Main + Backup 50 Mbps</label>
+    </div>
+
+    <div class="paket-checkbox" id="PAKET 2B">
+      <label><input type="checkbox"> Main 50 Mbps + Backup VSAT</label>
+    </div>
+
+    <div class="paket-checkbox" id="PAKET 3A">
+      <label><input type="checkbox"> Main 20 Mbps + Backup GSM</label>
+    </div>
+
+    <div class="paket-checkbox" id="PAKET 3B">
+      <label><input type="checkbox"> VSAT + Backup GSM</label>
+    </div>
+
+    <div class="paket-checkbox" id="PAKET 4">
+      <label><input type="checkbox"> GSM + ZTNA</label>
+    </div>
   </div>
 
+  <!-- === KOTAK INFORMASI PAKET === -->
+  <div class="paket-info-box">
+    <h4>Keterangan Paket</h4>
+    <ul>
+      <li><b>PAKET 1:</b> Main link 100 Mbps + Backup 100 Mbps + SDWAN active-active</li>
+      <li><b>PAKET 2A:</b> Main link 50 Mbps + Backup 50 Mbps + SDWAN active-active</li>
+      <li><b>PAKET 2B:</b> Main link 50 Mbps + Backup VSAT 6 Mbps + SDWAN active-passive</li>
+      <li><b>PAKET 3A:</b> Main link 20 Mbps + Backup GSM M2M + SDWAN active-standby</li>
+      <li><b>PAKET 3B:</b> Main link VSAT 2 Mbps + Backup GSM M2M + SDWAN active-standby</li>
+      <li><b>PAKET 4:</b> GSM M2M + WiFi LTE Router + ZTNA</li>
+    </ul>
+  </div>
+
+  <!-- MAP -->
   <div id="map"></div>
 
 </body>
