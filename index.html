@@ -5,19 +5,30 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Peta Kantor Regional</title>
 
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-  
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
   <!-- PapaParse untuk baca CSV -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <link rel="stylesheet" href="style.css">
-  <script type="module" src="main.js"></script>
+  <script defer src="main.js"></script>
 </head>
 
 <body>
+
+  <!-- CHECKBOX FILTER -->
+  <div class="filter-box">
+    <h4>Filter Paket</h4>
+    <label><input type="checkbox" class="paketFilter" value="PAKET 1" checked> Paket 1</label><br>
+    <label><input type="checkbox" class="paketFilter" value="PAKET 2A" checked> Paket 2A</label><br>
+    <label><input type="checkbox" class="paketFilter" value="PAKET 2B" checked> Paket 2B</label><br>
+    <label><input type="checkbox" class="paketFilter" value="PAKET 3A" checked> Paket 3A</label><br>
+    <label><input type="checkbox" class="paketFilter" value="PAKET 3B" checked> Paket 3B</label><br>
+    <label><input type="checkbox" class="paketFilter" value="PAKET 4" checked> Paket 4</label>
+  </div>
+
   <div id="map"></div>
+
 </body>
 </html>
