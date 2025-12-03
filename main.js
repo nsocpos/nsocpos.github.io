@@ -1,11 +1,11 @@
-// Warna ikon per REGIONAL
-const REGIONALColors = {
-  "REGIONAL 1": "yellow",
-  "REGIONAL 2A": "red",
-  "REGIONAL 2B": "blue",
-  "REGIONAL 3A": "green",
-  "REGIONAL 3B": "orange",
-  "REGIONAL 4": "violet"
+// Warna ikon per Paket
+const PaketColors = {
+  "PAKET 1": "yellow",
+  "PAKET 2A": "red",
+  "PAKET 2B": "blue",
+  "PAKET 3A": "green",
+  "PAKET 3B": "orange",
+  "PAKET 4": "violet"
 };
 
 // Inisialisasi peta di tengah Indonesia
@@ -17,7 +17,6 @@ L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
 }).addTo(map);
 
 // === ICON BALON ===
-// Pakai ikon kustom (balon udara gaya pin)
 function createBalloonIcon(color) {
   return L.icon({
     iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${color}.png`,
@@ -30,8 +29,8 @@ function createBalloonIcon(color) {
   });
 }
 
-let allMarkers = []; // untuk menyimpan semua marker
-let allNopen = [];   // untuk autocomplete
+let allMarkers = [];
+let allNopen = [];
 
 // === LOAD CSV ===
 Papa.parse("data.csv", {
@@ -43,41 +42,44 @@ Papa.parse("data.csv", {
       const lon = parseFloat(row["LONGITUDE"]);
       if (!lat || !lon) return;
 
-      const REGIONAL = row["REGIONAL"];
-      const colorName = REGIONALColors[REGIONAL] || "gray";
+      const paket = row["Paket"];
+      const colorName = PaketColors[paket] || "gray";
       const icon = createBalloonIcon(colorName);
 
       const marker = L.marker([lat, lon], { icon }).addTo(map);
 
       marker.bindPopup(`
-      <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1;">
-      <h3 style="margin: 0 0 8px; color: #2c3e50;">${row["NAMA KANTOR"]}</h3>
-      <dl style="margin: 8px 0; padding: 0; font-size: 0.9em;">
-      <dt style="font-weight: bold; display: inline;">NOPEN:</dt>
-      <dd style="display: inline; margin-left: 5px;">${row["NOPEN"]}</dd><br>
+        <div style="font-family: 'Segoe UI'; line-height: 1;">
+        <h3 style="margin: 0 0 8px;">${row["NAMA KANTOR"]}</h3>
+        <dl style="margin: 8px 0; padding: 0; font-size: 0.9em;">
+        <dt style="font-weight: bold; display: inline;">NOPEN:</dt>
+        <dd style="display: inline; margin-left: 5px;">${row["NOPEN"]}</dd><br>
 
-      <dt style="font-weight: bold; display: inline;">REGIONAL:</dt>
-      <dd style="display: inline; margin-left: 5px;">${row["REGIONAL"]}</dd><br>
+        <dt style="font-weight: bold; display: inline;">Paket:</dt>
+        <dd style="display: inline; margin-left: 5px;">${row["Paket"]}</dd><br>
 
-      <dt style="font-weight: bold; display: inline;">Jenis Kantor:</dt>
-      <dd style="display: inline; margin-left: 5px;">${row["JENIS KANTOR"]}</dd><br>
+        <dt style="font-weight: bold; display: inline;">Regional:</dt>
+        <dd style="display: inline; margin-left: 5px;">${row["REGIONAL"]}</dd><br>
 
-      <dt style="font-weight: bold; display: inline;">Status PSO:</dt>
-      <dd style="display: inline; margin-left: 5px;">${row["Status PSO"]}</dd><br>
+        <dt style="font-weight: bold; display: inline;">Jenis Kantor:</dt>
+        <dd style="display: inline; margin-left: 5px;">${row["JENIS KANTOR"]}</dd><br>
 
-      <dt style="font-weight: bold; display: inline;">Alamat:</dt>
-      <dd style="display: inline; margin-left: 5px;">${row["ALAMAT"]}</dd><br>
+        <dt style="font-weight: bold; display: inline;">Status PSO:</dt>
+        <dd style="display: inline; margin-left: 5px;">${row["Status PSO"]}</dd><br>
 
-      <dt style="font-weight: bold; display: inline;">Provinsi:</dt>
-      <dd style="display: inline; margin-left: 5px;">${row["PROVINSI"]}</dd>
-    </dl>
-  </div>
-`);
+        <dt style="font-weight: bold; display: inline;">Alamat:</dt>
+        <dd style="display: inline; margin-left: 5px;">${row["ALAMAT"]}</dd><br>
+
+        <dt style="font-weight: bold; display: inline;">Provinsi:</dt>
+        <dd style="display: inline; margin-left: 5px;">${row["PROVINSI"]}</dd>
+      </dl>
+    </div>
+  `);
 
       allMarkers.push({
         nopen: row["NOPEN"],
         nama: row["NAMA KANTOR"],
-        marker: marker
+        marker
       });
 
       allNopen.push({
@@ -91,16 +93,16 @@ Papa.parse("data.csv", {
   }
 });
 
-// === LEGEND ===
+// === LEGEND BERDASARKAN PAKET ===
 function addLegend() {
   const legend = L.control({ position: "bottomright" });
   legend.onAdd = function () {
     const div = L.DomUtil.create("div", "info legend");
-    div.innerHTML = "<h4>REGIONAL</h4>";
-    for (const reg in REGIONALColors) {
-      const color = REGIONALColors[reg];
+    div.innerHTML = "<h4>Paket Layanan</h4>";
+    for (const p in PaketColors) {
+      const color = PaketColors[p];
       div.innerHTML += `
-        <i style="background:${color}; width:15px; height:15px; display:inline-block; margin-right:6px;"></i> ${reg}<br>
+        <i style="background:${color}; width:15px; height:15px; display:inline-block; margin-right:6px;"></i> ${p}<br>
       `;
     }
     return div;
@@ -108,7 +110,7 @@ function addLegend() {
   legend.addTo(map);
 }
 
-// === SEARCH BOX DI TENGAH ATAS ===
+// === SEARCH BOX ===
 function addSearchBox() {
   const searchBox = L.control({ position: "topleft" });
 
@@ -128,12 +130,11 @@ function addSearchBox() {
   const input = document.getElementById("searchNopen");
   const suggestions = document.getElementById("suggestions");
 
-  // === Auto-suggest ===
   input.addEventListener("input", () => {
     const value = input.value.toLowerCase();
     suggestions.innerHTML = "";
 
-    if (value.length < 2) return; // baru muncul setelah 2 huruf
+    if (value.length < 2) return;
 
     const filtered = allNopen.filter((item) =>
       item.label.toLowerCase().includes(value)
@@ -153,16 +154,15 @@ function addSearchBox() {
   });
 
   input.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      searchNopen(input.value.trim());
-    }
+    if (e.key === "Enter") searchNopen(input.value.trim());
   });
 }
 
-// Tambahkan ikon highlight
 const highlightIcon = L.icon({
-  iconUrl: 'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-gold.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+  iconUrl:
+    'https://cdn.jsdelivr.net/gh/pointhi/leaflet-color-markers@master/img/marker-icon-2x-gold.png',
+  shadowUrl:
+    'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
   iconSize: [25, 41],
   iconAnchor: [12, 41],
   popupAnchor: [0, -35],
@@ -172,37 +172,19 @@ const highlightIcon = L.icon({
 // === FUNGSI PENCARIAN ===
 function searchNopen(nopen) {
   const targetNopen = nopen.toString().trim();
-  const found = allMarkers.find(
-    (m) => m.nopen.toString().trim() === targetNopen
-  );
+  const found = allMarkers.find(m => m.nopen.toString().trim() === targetNopen);
 
   if (found) {
     const originalIcon = found.marker.options.icon;
     found.marker.setIcon(highlightIcon);
     const latlng = found.marker.getLatLng();
-
-    map.setView(latlng, 12, { animate: true }); // zoom 12 lebih baik
+    map.setView(latlng, 12, { animate: true });
 
     setTimeout(() => {
       found.marker.openPopup();
-      setTimeout(() => {
-        found.marker.setIcon(originalIcon);
-      }, 2000);
+      setTimeout(() => found.marker.setIcon(originalIcon), 2000);
     }, 300);
   } else {
     alert("NOPEN tidak ditemukan: " + targetNopen);
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
