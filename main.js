@@ -1,5 +1,5 @@
-// Warna ikon per regional
-const regionalColors = {
+// Warna ikon per Paket
+const PaketColors = {
   "Paket 1": "yellow",
   "Paket 2A": "red",
   "Paket 2B": "blue",
@@ -43,8 +43,8 @@ Papa.parse("data.csv", {
       const lon = parseFloat(row["LONGITUDE"]);
       if (!lat || !lon) return;
 
-      const regional = row["REGIONAL"];
-      const colorName = regionalColors[regional] || "gray";
+      const Paket = row["Paket"];
+      const colorName = PaketColors[Paket] || "gray";
       const icon = createBalloonIcon(colorName);
 
       const marker = L.marker([lat, lon], { icon }).addTo(map);
@@ -56,8 +56,8 @@ Papa.parse("data.csv", {
       <dt style="font-weight: bold; display: inline;">NOPEN:</dt>
       <dd style="display: inline; margin-left: 5px;">${row["NOPEN"]}</dd><br>
 
-      <dt style="font-weight: bold; display: inline;">Regional:</dt>
-      <dd style="display: inline; margin-left: 5px;">${row["REGIONAL"]}</dd><br>
+      <dt style="font-weight: bold; display: inline;">Paket:</dt>
+      <dd style="display: inline; margin-left: 5px;">${row["Paket"]}</dd><br>
 
       <dt style="font-weight: bold; display: inline;">Jenis Kantor:</dt>
       <dd style="display: inline; margin-left: 5px;">${row["JENIS KANTOR"]}</dd><br>
@@ -96,9 +96,9 @@ function addLegend() {
   const legend = L.control({ position: "bottomright" });
   legend.onAdd = function () {
     const div = L.DomUtil.create("div", "info legend");
-    div.innerHTML = "<h4>Regional</h4>";
-    for (const reg in regionalColors) {
-      const color = regionalColors[reg];
+    div.innerHTML = "<h4>Paket</h4>";
+    for (const reg in PaketColors) {
+      const color = PaketColors[reg];
       div.innerHTML += `
         <i style="background:${color}; width:15px; height:15px; display:inline-block; margin-right:6px;"></i> ${reg}<br>
       `;
@@ -193,6 +193,7 @@ function searchNopen(nopen) {
     alert("NOPEN tidak ditemukan: " + targetNopen);
   }
 }
+
 
 
 
