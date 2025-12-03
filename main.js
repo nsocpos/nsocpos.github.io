@@ -1,11 +1,11 @@
 // Warna ikon per regional
 const regionalColors = {
-  "REGIONAL 1": "yellow",
-  "REGIONAL 2": "red",
-  "REGIONAL 3": "blue",
-  "REGIONAL 4": "green",
-  "REGIONAL 5": "orange",
-  "REGIONAL 6": "violet"
+  "Paket 1": "yellow",
+  "Paket 2A": "red",
+  "Paket 2B": "blue",
+  "Paket 3A": "green",
+  "Paket 3B": "orange",
+  "Paket 4": "violet"
 };
 
 // Inisialisasi peta di tengah Indonesia
@@ -193,6 +193,7 @@ function searchNopen(nopen) {
     alert("NOPEN tidak ditemukan: " + targetNopen);
   }
 }
+
 
 
 
