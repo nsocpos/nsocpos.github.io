@@ -1,10 +1,10 @@
 # nsocpos.github.io
 SISTEM INFORMASI GEOGRAFIS SEBARAN PAKET INFOKOM
-1. Ratna Wulan Meinasari
-2. Hesti Dewi Noor Hadiyani
-3. Siti Sundari
-4. Sekar Arum Chrysanti
-5. Rifan Riansyah
+1. Ratna Wulan Meinasari - 714252020
+2. Hesti Dewi Noor Hadiyani - 714252006
+3. Siti Sundari - 714252011
+4. Sekar Arum Chrysanti - 714252013
+5. Rifan Riansyah - 714252016
 
 ## task selanjutnya
 1. Perbaiki css nsocpos.github.io
