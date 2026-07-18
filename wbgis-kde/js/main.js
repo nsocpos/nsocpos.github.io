@@ -1,6 +1,6 @@
 /**
  * main.js
- * File utama untuk inisialisasi WebGIS dengan KDE & Point Density
+ * File utama dengan optimasi loading
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,7 +12,9 @@ document.addEventListener('DOMContentLoaded', function() {
     
     UIController.init();
     const map = MapController.init('map');
-    UIController.showLoading('Memuat Data dan Menganalisis...');
+    
+    // Tampilkan loading dengan progress
+    UIController.showLoading('⏳ Inisialisasi sistem...');
     
     // ============================================
     // 2. DATA
@@ -53,223 +55,236 @@ PAKET 2B;98100;BIAK;-;REGIONAL 6;KC;Non LPU;Jl. M Yamin No. 59 Biak 98111, Kel. 
 PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari, Kel. Manokwari Timur, Kec. Manokwari Timur, Manokwari;Papua Barat;-0.867541;134.075749`;
     
     // ============================================
-    // 3. LOAD DATA
+    // 3. LOAD DATA DENGAN PROGRESS
     // ============================================
     
-    DataLoader.loadFromCSV(csvData, function(data, error) {
-        if (error) {
-            console.error('Gagal memuat data:', error);
-            UIController.showInfo('❌ Gagal memuat data. Silakan refresh halaman.');
-            UIController.hideLoading();
-            return;
-        }
+    // Gunakan setTimeout agar UI tidak freeze
+    setTimeout(function() {
+        UIController.showLoading('📊 Memproses data...');
         
-        // Data sudah difilter hanya yang valid di Indonesia oleh DataLoader
-        const validData = data;
-        
-        console.log(`✅ Data berhasil dimuat: ${validData.length} titik valid di Indonesia`);
-        
-        if (validData.length === 0) {
-            UIController.showInfo('⚠️ Tidak ada data valid di Indonesia. Periksa format koordinat.');
-            UIController.hideLoading();
-            
-            // Tampilkan data invalid untuk debugging
-            const invalidData = DataLoader.getInvalidData();
-            if (invalidData.length > 0) {
-                console.warn('Data tidak valid:', invalidData);
-                UIController.showInfo(`⚠️ ${invalidData.length} data tidak valid. Cek console untuk detail.`, 8000);
+        DataLoader.loadFromCSV(csvData, function(data, error) {
+            if (error) {
+                console.error('Gagal memuat data:', error);
+                UIController.showInfo('❌ Gagal memuat data. Silakan refresh halaman.');
+                UIController.hideLoading();
+                return;
             }
-            return;
-        }
-        
-        UIController.updateDataInfo(validData.length);
-        
-        const regionals = DataLoader.getRegionals();
-        UIController.populateRegionalFilter(regionals);
-        
-        const pakets = DataLoader.getPakets();
-        UIController.populatePaketFilter(pakets);
-        
-        // Tampilkan informasi jumlah data
-        UIController.showInfo(`✅ ${validData.length} titik valid di Indonesia siap dianalisis`, 3000);
-        
-        applyAnalysis();
-        UIController.hideLoading();
-    });
+            
+            const validData = data;
+            
+            console.log(`✅ Data berhasil dimuat: ${validData.length} titik valid di Indonesia`);
+            
+            if (validData.length === 0) {
+                UIController.showInfo('⚠️ Tidak ada data valid di Indonesia. Periksa format koordinat.');
+                UIController.hideLoading();
+                return;
+            }
+            
+            UIController.updateDataInfo(validData.length);
+            
+            const regionals = DataLoader.getRegionals();
+            UIController.populateRegionalFilter(regionals);
+            
+            const pakets = DataLoader.getPakets();
+            UIController.populatePaketFilter(pakets);
+            
+            // Tampilkan informasi
+            UIController.showInfo(`✅ ${validData.length} titik siap dianalisis`, 2000);
+            
+            // Jalankan analisis setelah delay singkat
+            setTimeout(function() {
+                UIController.showLoading('🔬 Menganalisis kepadatan...');
+                setTimeout(function() {
+                    applyAnalysis();
+                    UIController.hideLoading();
+                }, 100);
+            }, 300);
+        });
+    }, 100);
     
     // ============================================
-    // 4. FUNGSI ANALISIS
+    // 4. FUNGSI ANALISIS DENGAN DEBOUNCE
     // ============================================
+    
+    let analysisTimeout = null;
+    let isAnalyzing = false;
     
     function applyAnalysis() {
-        const controls = UIController.getControlValues();
-        
-        const filters = {
-            regional: controls.regional,
-            paket: controls.paket
-        };
-        
-        let filteredData = DataLoader.getFilteredData(filters);
-        
-        // Data sudah difilter di Indonesia oleh DataLoader
-        // Tapi kita tambahkan validasi tambahan
-        filteredData = filteredData.filter(row => {
-            return row.isValid === true;
-        });
-        
-        if (filteredData.length === 0) {
-            UIController.showInfo('⚠️ Tidak ada data yang sesuai dengan filter yang dipilih', 4000);
-            MapController.clearLayers();
-            MapController.fitToData([]);
-            UIController.updateDataInfo(0);
+        // Cegah analisis berulang
+        if (isAnalyzing) {
+            console.log('⏳ Analisis sedang berjalan, lewati...');
             return;
         }
         
-        UIController.updateDataInfo(filteredData.length);
-        MapController.clearLayers();
+        isAnalyzing = true;
         
-        const points = filteredData.map(row => ({
-            lat: row.lat,
-            lng: row.lng,
-            intensity: 1.0,
-            ...row
-        }));
-        
-        const bounds = MapController.getBounds();
-        
-        if (controls.method === 'kde') {
-            // ============================================
-            // KERNEL DENSITY ESTIMATION
-            // ============================================
-            
-            if (bounds) {
-                const kdeResult = KDEAnalysis.calculateKDE(
-                    points,
-                    controls.kdeRadius,
-                    bounds,
-                    50
-                );
+        // Gunakan setTimeout agar tidak blocking UI
+        setTimeout(function() {
+            try {
+                const controls = UIController.getControlValues();
                 
-                if (kdeResult) {
-                    const heatData = KDEAnalysis.kdeToHeatmapData(kdeResult, 0.01);
-                    
-                    if (controls.showHeatmap && heatData.length > 0) {
-                        MapController.showHeatmap(heatData);
-                    }
-                    
-                    const densest = KDEAnalysis.findDensestPoint(kdeResult);
-                    const stats = KDEAnalysis.getDensityStats(kdeResult);
-                    UIController.updateDensityStats({
-                        densestPoint: densest,
-                        average: stats ? stats.average : 0
-                    });
-                    
-                    UIController.showInfo(`✅ KDE selesai. ${filteredData.length} titik dianalisis.`, 3000);
+                const filters = {
+                    regional: controls.regional,
+                    paket: controls.paket
+                };
+                
+                let filteredData = DataLoader.getFilteredData(filters);
+                filteredData = filteredData.filter(row => row.isValid === true);
+                
+                if (filteredData.length === 0) {
+                    UIController.showInfo('⚠️ Tidak ada data sesuai filter', 3000);
+                    MapController.clearLayers();
+                    MapController.fitToData([]);
+                    UIController.updateDataInfo(0);
+                    isAnalyzing = false;
+                    return;
                 }
-            }
-            
-            if (controls.showMarkers) {
-                MapController.showMarkers(filteredData);
-            }
-            
-        } else if (controls.method === 'point') {
-            // ============================================
-            // POINT DENSITY ANALYSIS
-            // ============================================
-            
-            // Hitung density untuk setiap titik
-            const densityResult = PointDensityAnalysis.calculatePointDensity(
-                points,
-                controls.pointRadius,
-                bounds
-            );
-            
-            // Hitung grid density untuk heatmap
-            if (bounds) {
-                const gridResult = PointDensityAnalysis.calculateGridDensity(
-                    points,
-                    controls.pointRadius,
-                    bounds,
-                    50
-                );
                 
-                if (gridResult) {
-                    const heatData = PointDensityAnalysis.gridToHeatmapData(gridResult, 0.01);
-                    
-                    if (controls.showHeatmap && heatData.length > 0) {
-                        MapController.showHeatmap(heatData, {
-                            gradient: {
-                                0.0: 'blue',
-                                0.3: 'cyan',
-                                0.6: 'yellow',
-                                0.8: 'orange',
-                                1.0: 'red'
+                UIController.updateDataInfo(filteredData.length);
+                MapController.clearLayers();
+                
+                const points = filteredData.map(row => ({
+                    lat: row.lat,
+                    lng: row.lng,
+                    intensity: 1.0,
+                    ...row
+                }));
+                
+                const bounds = MapController.getBounds();
+                
+                if (controls.method === 'kde') {
+                    // KDE Analysis
+                    if (bounds) {
+                        const kdeResult = KDEAnalysis.calculateKDE(
+                            points,
+                            controls.kdeRadius,
+                            bounds,
+                            30 // Grid lebih kecil untuk kecepatan
+                        );
+                        
+                        if (kdeResult) {
+                            const heatData = KDEAnalysis.kdeToHeatmapData(kdeResult, 0.01, 2000);
+                            
+                            if (controls.showHeatmap && heatData.length > 0) {
+                                MapController.showHeatmap(heatData);
                             }
-                        });
+                            
+                            const densest = KDEAnalysis.findDensestPoint(kdeResult);
+                            const stats = KDEAnalysis.getDensityStats(kdeResult);
+                            UIController.updateDensityStats({
+                                densestPoint: densest,
+                                average: stats ? stats.average : 0
+                            });
+                        }
                     }
                     
-                    const highest = PointDensityAnalysis.findHighestDensity(gridResult);
-                    const stats = PointDensityAnalysis.getDensityStats(gridResult);
-                    UIController.updateDensityStats({
-                        densestPoint: highest,
-                        average: stats ? stats.average : 0
-                    });
+                    if (controls.showMarkers) {
+                        MapController.showMarkers(filteredData);
+                    }
+                    
+                } else if (controls.method === 'point') {
+                    // Point Density Analysis
+                    const densityResult = PointDensityAnalysis.calculatePointDensity(
+                        points,
+                        controls.pointRadius,
+                        bounds
+                    );
+                    
+                    if (bounds) {
+                        const gridResult = PointDensityAnalysis.calculateGridDensity(
+                            points,
+                            controls.pointRadius,
+                            bounds,
+                            30
+                        );
+                        
+                        if (gridResult) {
+                            const heatData = PointDensityAnalysis.gridToHeatmapData(gridResult, 0.01, 2000);
+                            
+                            if (controls.showHeatmap && heatData.length > 0) {
+                                MapController.showHeatmap(heatData, {
+                                    gradient: {
+                                        0.0: 'blue',
+                                        0.3: 'cyan',
+                                        0.6: 'yellow',
+                                        0.8: 'orange',
+                                        1.0: 'red'
+                                    }
+                                });
+                            }
+                            
+                            const highest = PointDensityAnalysis.findHighestDensity(gridResult);
+                            const stats = PointDensityAnalysis.getDensityStats(gridResult);
+                            UIController.updateDensityStats({
+                                densestPoint: highest,
+                                average: stats ? stats.average : 0
+                            });
+                        }
+                    }
+                    
+                    // Hotspot & Coldspot
+                    const hotspotResult = PointDensityAnalysis.identifyHotspots(
+                        points,
+                        controls.pointRadius,
+                        1.5
+                    );
+                    
+                    if (controls.showHotspots && hotspotResult.hotspots.length > 0) {
+                        MapController.showHotspots(hotspotResult.hotspots);
+                    }
+                    
+                    if (controls.showColdspots && hotspotResult.coldspots.length > 0) {
+                        MapController.showColdspots(hotspotResult.coldspots);
+                    }
+                    
+                    if (controls.showMarkers) {
+                        const neutralPoints = hotspotResult.neutral || [];
+                        if (neutralPoints.length > 0) {
+                            MapController.showMarkers(neutralPoints);
+                        }
+                    }
                 }
+                
+                // Fit peta ke data
+                MapController.fitToData(filteredData);
+                
+            } catch (error) {
+                console.error('Error dalam analisis:', error);
+                UIController.showInfo('❌ Error dalam analisis: ' + error.message, 5000);
+            } finally {
+                isAnalyzing = false;
             }
-            
-            // Identifikasi Hotspot dan Coldspot
-            const hotspotResult = PointDensityAnalysis.identifyHotspots(
-                points,
-                controls.pointRadius,
-                1.5
-            );
-            
-            // Tampilkan Hotspots (merah)
-            if (controls.showHotspots && hotspotResult.hotspots.length > 0) {
-                MapController.showHotspots(hotspotResult.hotspots);
-                UIController.showInfo(`🔥 Ditemukan ${hotspotResult.hotspots.length} Hotspot`, 4000);
-            }
-            
-            // Tampilkan Coldspots (biru)
-            if (controls.showColdspots && hotspotResult.coldspots.length > 0) {
-                MapController.showColdspots(hotspotResult.coldspots);
-            }
-            
-            // Tampilkan marker biasa jika tidak ada hotspot/coldspot
-            if (controls.showMarkers) {
-                const neutralPoints = hotspotResult.neutral || [];
-                if (neutralPoints.length > 0) {
-                    MapController.showMarkers(neutralPoints);
-                }
-            }
-            
-            // Tampilkan statistik tambahan
-            console.log(`📊 Point Density Stats:`);
-            console.log(`  - Hotspot: ${hotspotResult.stats.hotspotCount}`);
-            console.log(`  - Coldspot: ${hotspotResult.stats.coldspotCount}`);
-            console.log(`  - Neutral: ${hotspotResult.stats.neutralCount}`);
+        }, 50);
+    }
+    
+    // Debounce function untuk mencegah analisis berulang
+    function debounceAnalysis() {
+        if (analysisTimeout) {
+            clearTimeout(analysisTimeout);
         }
-        
-        // Fit peta ke data
-        MapController.fitToData(filteredData);
+        analysisTimeout = setTimeout(function() {
+            applyAnalysis();
+        }, 300);
     }
     
     // ============================================
-    // 5. EVENT LISTENER
+    // 5. EVENT LISTENER DENGAN DEBOUNCE
     // ============================================
     
     document.querySelector('.btn-primary')?.addEventListener('click', function() {
-        UIController.showLoading('Menganalisis data...');
-        setTimeout(() => {
+        UIController.showLoading('🔄 Menganalisis ulang...');
+        setTimeout(function() {
             applyAnalysis();
-            UIController.hideLoading();
-        }, 300);
+            setTimeout(function() {
+                UIController.hideLoading();
+            }, 200);
+        }, 100);
     });
     
     document.querySelector('.btn-danger')?.addEventListener('click', function() {
         MapController.resetView();
         UIController.updateDensityStats(null);
-        UIController.showInfo('🔄 Peta telah direset');
+        UIController.showInfo('🔄 Peta direset', 2000);
     });
     
     document.querySelector('.btn-success')?.addEventListener('click', function() {
@@ -305,16 +320,25 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
         link.click();
         URL.revokeObjectURL(link.href);
         
-        UIController.showInfo(`✅ ${data.length} data berhasil diekspor`);
+        UIController.showInfo(`✅ ${data.length} data diekspor`, 2000);
+    });
+    
+    // Auto-apply dengan debounce saat map bergerak
+    document.addEventListener('mapMoved', function() {
+        debounceAnalysis();
     });
     
     // ============================================
     // 6. HANDLE RESIZE
     // ============================================
     
+    let resizeTimeout = null;
     window.addEventListener('resize', function() {
-        const map = MapController.getMap();
-        if (map) map.invalidateSize();
+        if (resizeTimeout) clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(function() {
+            const map = MapController.getMap();
+            if (map) map.invalidateSize();
+        }, 200);
     });
     
     // ============================================
@@ -330,7 +354,6 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
         applyAnalysis: applyAnalysis
     };
     
-    console.log('✅ WebGIS Density Analysis berhasil diinisialisasi');
-    console.log(`📊 Total data valid: ${DataLoader.getAllData().length} titik`);
-    console.log('🌐 Gunakan window.webgis untuk debugging');
+    console.log('✅ WebGIS Density Analysis siap!');
+    console.log(`📊 ${DataLoader.getAllData().length} titik valid`);
 });
