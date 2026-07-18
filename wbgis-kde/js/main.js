@@ -21,7 +21,6 @@ document.addEventListener('DOMContentLoaded', function() {
     // 2. LOAD DATA DARI FILE CSV
     // ============================================
     
-    // Path ke file CSV
     const csvFilePath = 'data/data.csv';
     
     // Load data dari file
@@ -37,23 +36,40 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const validData = data;
             const totalData = DataLoader.getAllData().length;
+            const stats = DataLoader.getStats();
+            const invalidData = DataLoader.getInvalidData();
             
-            console.log(`✅ Data berhasil dimuat: ${totalData} titik total, ${validData.length} titik valid di Indonesia`);
+            console.log('📊 ===== STATISTIK DATA =====');
+            console.log(`  - Total data di CSV: ${stats.totalRaw}`);
+            console.log(`  - Data valid: ${totalData}`);
+            console.log(`  - Data tidak valid: ${stats.invalid}`);
+            console.log(`  - Data diperbaiki: ${validData.filter(d => d.isFixed).length}`);
+            
+            // Tampilkan info di UI
+            document.getElementById('dataInfo').innerHTML = 
+                `<i class="fas fa-database"></i> ${totalData} titik valid dari ${stats.totalRaw} total`;
             
             if (validData.length === 0) {
-                UIController.showInfo('⚠️ Tidak ada data valid di Indonesia. Periksa format koordinat.');
-                UIController.hideLoading();
+                // Tampilkan data invalid untuk debugging
+                const invalidLog = DataLoader.getInvalidDataLog();
+                let errorMsg = '⚠️ Tidak ada data valid di Indonesia.<br>';
+                errorMsg += `Total data di CSV: ${stats.totalRaw}<br>`;
+                errorMsg += `Data tidak valid: ${stats.invalid}<br><br>`;
+                errorMsg += 'Contoh data bermasalah:<br>';
+                invalidLog.slice(0, 5).forEach(row => {
+                    errorMsg += `- ${row.nama}: lat=${row.lat}, lng=${row.lng}<br>`;
+                });
+                if (invalidLog.length > 5) {
+                    errorMsg += `... dan ${invalidLog.length - 5} lainnya`;
+                }
                 
-                // Tampilkan info di panel
-                document.getElementById('dataInfo').innerHTML = 
-                    `<i class="fas fa-exclamation-triangle" style="color: #f57c00;"></i> Tidak ada data valid`;
+                UIController.showInfo(errorMsg, 10000);
+                UIController.hideLoading();
                 return;
             }
             
             // Update UI
             UIController.updateDataInfo(validData.length);
-            document.getElementById('dataInfo').innerHTML = 
-                `<i class="fas fa-check-circle" style="color: #2e7d32;"></i> ${validData.length} titik valid dari ${totalData} total`;
             
             // Populate filters
             const regionals = DataLoader.getRegionals();
@@ -92,7 +108,6 @@ document.addEventListener('DOMContentLoaded', function() {
             const progressText = message || `Memuat data... ${Math.round(progress)}%`;
             progressEl.textContent = progressText;
             
-            // Update loading text juga
             const loadingText = document.querySelector('.loading-text');
             if (loadingText && progress < 100) {
                 loadingText.textContent = progressText;
@@ -316,6 +331,6 @@ document.addEventListener('DOMContentLoaded', function() {
     };
     
     console.log('✅ WebGIS Density Analysis siap!');
-    console.log(`📊 Total data: ${DataLoader.getAllData().length} titik valid`);
-    console.log('💡 Tips: Letakkan file data.csv di folder data/');
+    console.log(`📊 Total data valid: ${DataLoader.getAllData().length} titik`);
+    console.log('💡 Tips: Periksa console untuk detail data invalid');
 });
