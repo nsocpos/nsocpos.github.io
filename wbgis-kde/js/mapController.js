@@ -1,6 +1,6 @@
 /**
  * mapController.js
- * Modul untuk mengontrol peta Leaflet
+ * Modul untuk mengontrol peta Leaflet - DENGAN HEATMAP CUSTOM
  */
 
 const MapController = (function() {
@@ -22,21 +22,92 @@ const MapController = (function() {
         maxLng: 141.0
     };
     
-    // Konfigurasi heatmap
-    const HEATMAP_CONFIG = {
-        radius: 20,
-        blur: 15,
-        maxZoom: 17,
-        minOpacity: 0.3,
-        maxOpacity: 0.8,
-        gradient: {
-            0.0: 'blue',
-            0.25: 'cyan',
-            0.5: 'lime',
-            0.75: 'yellow',
-            1.0: 'red'
+    /**
+     * Membuat heatmap menggunakan Canvas (custom implementation)
+     * Karena L.heatLayer kadang bermasalah
+     */
+    function createHeatmap(data, options = {}) {
+        if (!map || !data || data.length === 0) return null;
+        
+        const defaultOptions = {
+            radius: 25,
+            blur: 15,
+            maxZoom: 17,
+            minOpacity: 0.3,
+            maxOpacity: 0.8,
+            gradient: {
+                0.0: 'blue',
+                0.25: 'cyan',
+                0.5: 'lime',
+                0.75: 'yellow',
+                1.0: 'red'
+            }
+        };
+        
+        const config = { ...defaultOptions, ...options };
+        
+        // Gunakan L.heatLayer jika tersedia
+        if (typeof L.heatLayer === 'function') {
+            return L.heatLayer(data, config);
         }
-    };
+        
+        // Fallback: Gunakan custom heatmap dengan circle markers
+        console.warn('L.heatLayer tidak tersedia, menggunakan fallback circle markers');
+        const group = L.layerGroup();
+        
+        // Normalisasi data
+        const maxIntensity = Math.max(...data.map(d => d[2] || 0), 1);
+        
+        data.forEach(point => {
+            const lat = point[0];
+            const lng = point[1];
+            const intensity = (point[2] || 0) / maxIntensity;
+            
+            // Ukuran dan warna berdasarkan intensitas
+            const radius = 5 + intensity * 20;
+            const color = getHeatmapColor(intensity);
+            
+            const marker = L.circleMarker([lat, lng], {
+                radius: radius,
+                fillColor: color,
+                color: color,
+                weight: 0.5,
+                opacity: 0.5,
+                fillOpacity: 0.3 + intensity * 0.5
+            });
+            
+            group.addLayer(marker);
+        });
+        
+        return group;
+    }
+    
+    /**
+     * Mendapatkan warna berdasarkan intensitas
+     */
+    function getHeatmapColor(intensity) {
+        const colors = [
+            { pos: 0.0, color: [0, 0, 255] },     // Blue
+            { pos: 0.25, color: [0, 255, 255] },   // Cyan
+            { pos: 0.5, color: [0, 255, 0] },      // Lime
+            { pos: 0.75, color: [255, 255, 0] },   // Yellow
+            { pos: 1.0, color: [255, 0, 0] }       // Red
+        ];
+        
+        // Cari warna yang sesuai
+        for (let i = 0; i < colors.length - 1; i++) {
+            const c1 = colors[i];
+            const c2 = colors[i + 1];
+            if (intensity >= c1.pos && intensity <= c2.pos) {
+                const t = (intensity - c1.pos) / (c2.pos - c1.pos);
+                const r = Math.round(c1.color[0] + (c2.color[0] - c1.color[0]) * t);
+                const g = Math.round(c1.color[1] + (c2.color[1] - c1.color[1]) * t);
+                const b = Math.round(c1.color[2] + (c2.color[2] - c1.color[2]) * t);
+                return `rgb(${r},${g},${b})`;
+            }
+        }
+        return 'rgb(255,0,0)';
+    }
     
     function init(elementId = 'map', options = {}) {
         if (isInitialized) return map;
@@ -128,9 +199,10 @@ const MapController = (function() {
         
         if (filteredData.length === 0) return;
         
-        const finalConfig = { ...HEATMAP_CONFIG, ...config };
-        heatmapLayer = L.heatLayer(filteredData, finalConfig);
-        heatmapLayer.addTo(map);
+        heatmapLayer = createHeatmap(filteredData, config);
+        if (heatmapLayer) {
+            heatmapLayer.addTo(map);
+        }
     }
     
     function removeHeatmap() {
@@ -234,7 +306,8 @@ const MapController = (function() {
                 color: finalOptions.color,
                 weight: finalOptions.weight,
                 opacity: finalOptions.opacity,
-                fillOpacity: finalOptions.fillOpacity
+                fillOpacity: finalOptions.fillOpacity,
+                className: 'hotspot-marker'
             });
             
             const density = item.density || 0;
@@ -289,7 +362,8 @@ const MapController = (function() {
                 color: finalOptions.color,
                 weight: finalOptions.weight,
                 opacity: finalOptions.opacity,
-                fillOpacity: finalOptions.fillOpacity
+                fillOpacity: finalOptions.fillOpacity,
+                className: 'coldspot-marker'
             });
             
             const density = item.density || 0;
