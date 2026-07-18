@@ -1,6 +1,6 @@
 /**
  * mapController.js
- * Modul untuk mengontrol peta Leaflet - DENGAN HEATMAP CUSTOM
+ * Modul untuk mengontrol peta Leaflet - ZOOM NORMAL
  */
 
 const MapController = (function() {
@@ -24,7 +24,6 @@ const MapController = (function() {
     
     /**
      * Membuat heatmap menggunakan Canvas (custom implementation)
-     * Karena L.heatLayer kadang bermasalah
      */
     function createHeatmap(data, options = {}) {
         if (!map || !data || data.length === 0) return null;
@@ -55,7 +54,6 @@ const MapController = (function() {
         console.warn('L.heatLayer tidak tersedia, menggunakan fallback circle markers');
         const group = L.layerGroup();
         
-        // Normalisasi data
         const maxIntensity = Math.max(...data.map(d => d[2] || 0), 1);
         
         data.forEach(point => {
@@ -63,7 +61,6 @@ const MapController = (function() {
             const lng = point[1];
             const intensity = (point[2] || 0) / maxIntensity;
             
-            // Ukuran dan warna berdasarkan intensitas
             const radius = 5 + intensity * 20;
             const color = getHeatmapColor(intensity);
             
@@ -82,19 +79,15 @@ const MapController = (function() {
         return group;
     }
     
-    /**
-     * Mendapatkan warna berdasarkan intensitas
-     */
     function getHeatmapColor(intensity) {
         const colors = [
-            { pos: 0.0, color: [0, 0, 255] },     // Blue
-            { pos: 0.25, color: [0, 255, 255] },   // Cyan
-            { pos: 0.5, color: [0, 255, 0] },      // Lime
-            { pos: 0.75, color: [255, 255, 0] },   // Yellow
-            { pos: 1.0, color: [255, 0, 0] }       // Red
+            { pos: 0.0, color: [0, 0, 255] },
+            { pos: 0.25, color: [0, 255, 255] },
+            { pos: 0.5, color: [0, 255, 0] },
+            { pos: 0.75, color: [255, 255, 0] },
+            { pos: 1.0, color: [255, 0, 0] }
         ];
         
-        // Cari warna yang sesuai
         for (let i = 0; i < colors.length - 1; i++) {
             const c1 = colors[i];
             const c2 = colors[i + 1];
@@ -116,34 +109,37 @@ const MapController = (function() {
             center: [-2.5, 118.0],
             zoom: 5,
             zoomControl: true,
-            minZoom: 4,
-            maxBounds: [
-                [INDONESIA_BOUNDS.minLat - 3, INDONESIA_BOUNDS.minLng - 3],
-                [INDONESIA_BOUNDS.maxLat + 3, INDONESIA_BOUNDS.maxLng + 3]
-            ],
-            maxBoundsViscosity: 1.0,
+            minZoom: 3,
+            maxZoom: 18,
+            // Hapus maxBounds agar zoom bisa normal
+            // maxBounds: [
+            //     [INDONESIA_BOUNDS.minLat - 3, INDONESIA_BOUNDS.minLng - 3],
+            //     [INDONESIA_BOUNDS.maxLat + 3, INDONESIA_BOUNDS.maxLng + 3]
+            // ],
+            // maxBoundsViscosity: 1.0,
             ...options
         };
         
         map = L.map(elementId, defaultOptions);
         
+        // Base layers
         const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors',
-            minZoom: 4,
-            maxZoom: 18
+            minZoom: 3,
+            maxZoom: 19
         });
         
         const cartoLayer = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
             attribution: '&copy; OpenStreetMap, &copy; CartoDB',
-            minZoom: 4,
-            maxZoom: 18
+            minZoom: 3,
+            maxZoom: 19
         });
         
         const satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
             subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
             attribution: '&copy; Google Maps',
-            minZoom: 4,
-            maxZoom: 18
+            minZoom: 3,
+            maxZoom: 19
         });
         
         osmLayer.addTo(map);
@@ -306,8 +302,7 @@ const MapController = (function() {
                 color: finalOptions.color,
                 weight: finalOptions.weight,
                 opacity: finalOptions.opacity,
-                fillOpacity: finalOptions.fillOpacity,
-                className: 'hotspot-marker'
+                fillOpacity: finalOptions.fillOpacity
             });
             
             const density = item.density || 0;
@@ -362,8 +357,7 @@ const MapController = (function() {
                 color: finalOptions.color,
                 weight: finalOptions.weight,
                 opacity: finalOptions.opacity,
-                fillOpacity: finalOptions.fillOpacity,
-                className: 'coldspot-marker'
+                fillOpacity: finalOptions.fillOpacity
             });
             
             const density = item.density || 0;
@@ -441,8 +435,11 @@ const MapController = (function() {
     }
     
     function fitToData(data, options = {}) {
-        if (!map || !data || data.length === 0) {
-            map.fitBounds(getIndonesiaBounds(), { padding: [50, 50], ...options });
+        if (!map) return;
+        
+        if (!data || data.length === 0) {
+            // Fokus ke Indonesia dengan zoom yang lebih baik
+            map.setView([-2.5, 118.0], 5);
             return;
         }
         
@@ -455,15 +452,21 @@ const MapController = (function() {
         });
         
         if (bounds.length > 0) {
-            map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10, ...options });
+            // Buat bounds dan fit dengan padding
+            const latLngBounds = L.latLngBounds(bounds);
+            map.fitBounds(latLngBounds, { 
+                padding: [50, 50], 
+                maxZoom: 12,
+                ...options 
+            });
         } else {
-            map.fitBounds(getIndonesiaBounds(), { padding: [50, 50], ...options });
+            map.setView([-2.5, 118.0], 5);
         }
     }
     
     function resetView() {
         if (!map) return;
-        map.fitBounds(getIndonesiaBounds(), { padding: [50, 50] });
+        map.setView([-2.5, 118.0], 5);
         clearLayers();
     }
     
@@ -478,6 +481,24 @@ const MapController = (function() {
     function getBounds() {
         if (!map) return null;
         return map.getBounds();
+    }
+    
+    // Tambahkan fungsi untuk zoom in/out
+    function zoomIn() {
+        if (map) map.zoomIn();
+    }
+    
+    function zoomOut() {
+        if (map) map.zoomOut();
+    }
+    
+    function setZoom(level) {
+        if (map) map.setZoom(level);
+    }
+    
+    function getZoom() {
+        if (map) return map.getZoom();
+        return 0;
     }
     
     return {
@@ -498,7 +519,11 @@ const MapController = (function() {
         fitToData: fitToData,
         resetView: resetView,
         clearLayers: clearLayers,
-        getBounds: getBounds
+        getBounds: getBounds,
+        zoomIn: zoomIn,
+        zoomOut: zoomOut,
+        setZoom: setZoom,
+        getZoom: getZoom
     };
 })();
 
