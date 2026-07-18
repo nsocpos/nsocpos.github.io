@@ -1,6 +1,6 @@
 /**
  * main.js
- * File utama - load data dari file CSV eksternal
+ * File utama - HANYA TAMPILKAN DATA VALID
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -35,36 +35,31 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             const validData = data;
-            const totalData = DataLoader.getAllData().length;
             const stats = DataLoader.getStats();
-            const invalidData = DataLoader.getInvalidData();
+            const invalidCount = DataLoader.getInvalidCount();
             
             console.log('📊 ===== STATISTIK DATA =====');
             console.log(`  - Total data di CSV: ${stats.totalRaw}`);
-            console.log(`  - Data valid: ${totalData}`);
-            console.log(`  - Data tidak valid: ${stats.invalid}`);
+            console.log(`  - Data VALID: ${validData.length}`);
+            console.log(`  - Data INVALID (diabaikan): ${invalidCount}`);
             console.log(`  - Data diperbaiki: ${validData.filter(d => d.isFixed).length}`);
             
-            // Tampilkan info di UI
+            // Update info di UI
             document.getElementById('dataInfo').innerHTML = 
-                `<i class="fas fa-database"></i> ${totalData} titik valid dari ${stats.totalRaw} total`;
+                `<i class="fas fa-check-circle" style="color: #2e7d32;"></i> ${validData.length} data valid (${invalidCount} data invalid diabaikan)`;
             
             if (validData.length === 0) {
-                // Tampilkan data invalid untuk debugging
-                const invalidLog = DataLoader.getInvalidDataLog();
-                let errorMsg = '⚠️ Tidak ada data valid di Indonesia.<br>';
-                errorMsg += `Total data di CSV: ${stats.totalRaw}<br>`;
-                errorMsg += `Data tidak valid: ${stats.invalid}<br><br>`;
-                errorMsg += 'Contoh data bermasalah:<br>';
-                invalidLog.slice(0, 5).forEach(row => {
-                    errorMsg += `- ${row.nama}: lat=${row.lat}, lng=${row.lng}<br>`;
-                });
-                if (invalidLog.length > 5) {
-                    errorMsg += `... dan ${invalidLog.length - 5} lainnya`;
-                }
-                
-                UIController.showInfo(errorMsg, 10000);
+                UIController.showInfo('⚠️ Tidak ada data valid di Indonesia. Periksa format koordinat di file CSV.', 5000);
                 UIController.hideLoading();
+                
+                // Tampilkan contoh data invalid
+                const invalidLog = DataLoader.getInvalidData();
+                if (invalidLog.length > 0) {
+                    console.warn('Contoh data invalid:');
+                    invalidLog.slice(0, 5).forEach(row => {
+                        console.warn(`  - ${row.nama}: lat="${row.lat}", lng="${row.lng}"`);
+                    });
+                }
                 return;
             }
             
@@ -78,7 +73,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const pakets = DataLoader.getPakets();
             UIController.populatePaketFilter(pakets);
             
-            UIController.showInfo(`✅ ${validData.length} titik siap dianalisis`, 2000);
+            UIController.showInfo(`✅ ${validData.length} titik valid siap dianalisis`, 2000);
             
             // Jalankan analisis
             setTimeout(function() {
@@ -93,7 +88,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         },
         function(progress, message) {
-            // Update progress
             updateLoadingProgress(progress, message);
         }
     );
@@ -139,8 +133,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     paket: controls.paket
                 };
                 
+                // Data sudah difilter hanya yang valid
                 let filteredData = DataLoader.getFilteredData(filters);
-                filteredData = filteredData.filter(row => row.isValid === true);
                 
                 if (filteredData.length === 0) {
                     UIController.showInfo('⚠️ Tidak ada data sesuai filter', 3000);
@@ -332,5 +326,5 @@ document.addEventListener('DOMContentLoaded', function() {
     
     console.log('✅ WebGIS Density Analysis siap!');
     console.log(`📊 Total data valid: ${DataLoader.getAllData().length} titik`);
-    console.log('💡 Tips: Periksa console untuk detail data invalid');
+    console.log('💡 Data invalid otomatis diabaikan');
 });
