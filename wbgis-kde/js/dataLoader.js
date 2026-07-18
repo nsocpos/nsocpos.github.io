@@ -1,6 +1,6 @@
 /**
  * dataLoader.js
- * Modul untuk memuat dan memproses data CSV dari file eksternal
+ * Modul untuk memuat dan memproses data CSV dengan validasi ketat
  */
 
 const DataLoader = (function() {
@@ -11,9 +11,10 @@ const DataLoader = (function() {
     let allData = [];
     let isLoading = false;
     let loadProgress = 0;
+    let invalidDataLog = [];
     
     /**
-     * Membersihkan koordinat dengan validasi yang lebih baik
+     * Membersihkan koordinat dengan validasi yang sangat kuat
      */
     function cleanCoordinate(coord) {
         if (!coord) return null;
@@ -21,19 +22,46 @@ const DataLoader = (function() {
         // Hapus spasi dan karakter aneh
         let cleaned = coord.toString().trim().replace(/\s/g, '');
         
-        // Jika koordinat memiliki format dengan banyak titik
+        // Ganti koma dengan titik
+        cleaned = cleaned.replace(/,/g, '.');
+        
+        // Jika koordinat memiliki format dengan banyak titik (seperti -689.418.027.494.068)
         if (cleaned.includes('.') && cleaned.split('.').length > 3) {
+            // Coba parse dengan menghapus semua titik kecuali yang pertama
             const parts = cleaned.split('.');
             if (parts.length > 2) {
+                // Ambil bagian pertama (bisa negatif) dan gabungkan sisanya
                 const firstPart = parts[0];
                 const rest = parts.slice(1).join('');
                 cleaned = firstPart + '.' + rest;
             }
         }
         
+        // Jika ada format seperti 3.591.867 (ribuan)
+        // Ubah menjadi 3.591867
+        if (cleaned.match(/^\d{1,2}\.\d{3}\.\d{3}$/)) {
+            const parts = cleaned.split('.');
+            cleaned = parts[0] + '.' + parts[1] + parts[2];
+        }
+        
+        // Jika ada format seperti -6,193982 (koma)
+        cleaned = cleaned.replace(/,/g, '.');
+        
+        // Konversi ke float
         const parsed = parseFloat(cleaned);
         
+        // Validasi: harus number, tidak NaN
         if (isNaN(parsed)) return null;
+        
+        // Validasi rentang koordinat
+        // Latitude: -90 s/d 90, Longitude: -180 s/d 180
+        if (parsed < -90 || parsed > 90) {
+            // Coba sebagai longitude (mungkin terbalik)
+            if (parsed >= -180 && parsed <= 180) {
+                return parsed;
+            }
+            return null;
+        }
         
         return parsed;
     }
@@ -42,15 +70,41 @@ const DataLoader = (function() {
      * Validasi apakah koordinat berada di Indonesia
      */
     function isValidIndonesia(lat, lng) {
-        const MIN_LAT = -11.0;
-        const MAX_LAT = 6.0;
-        const MIN_LNG = 95.0;
-        const MAX_LNG = 141.0;
+        // Batas Indonesia yang lebih longgar
+        const MIN_LAT = -12.0;
+        const MAX_LAT = 8.0;
+        const MIN_LNG = 94.0;
+        const MAX_LNG = 142.0;
         
         return lat !== null && lng !== null && 
                !isNaN(lat) && !isNaN(lng) &&
                lat >= MIN_LAT && lat <= MAX_LAT &&
                lng >= MIN_LNG && lng <= MAX_LNG;
+    }
+    
+    /**
+     * Coba perbaiki koordinat yang terbalik (longitude di latitude)
+     */
+    function tryFixSwappedCoordinates(lat, lng) {
+        // Jika latitude tidak valid tapi longitude valid untuk latitude
+        if ((lat < -90 || lat > 90) && (lng >= -90 && lng <= 90)) {
+            // Coba swap
+            const temp = lat;
+            lat = lng;
+            lng = temp;
+        }
+        return { lat, lng };
+    }
+    
+    /**
+     * Perbaiki data yang memiliki format koordinat dengan koma desimal
+     * Contoh: -6,193982 menjadi -6.193982
+     */
+    function fixCommaDecimal(value) {
+        if (typeof value === 'string' && value.includes(',')) {
+            return value.replace(/,/g, '.');
+        }
+        return value;
     }
     
     /**
@@ -64,8 +118,8 @@ const DataLoader = (function() {
         
         isLoading = true;
         loadProgress = 0;
+        invalidDataLog = [];
         
-        // Gunakan Fetch API untuk membaca file
         fetch(url)
             .then(response => {
                 if (!response.ok) {
@@ -93,13 +147,6 @@ const DataLoader = (function() {
     }
     
     /**
-     * Memuat data dari string CSV (untuk fallback)
-     */
-    function loadFromCSV(csvString, callback) {
-        parseCSV(csvString, callback);
-    }
-    
-    /**
      * Parse CSV string
      */
     function parseCSV(csvString, callback, progressCallback) {
@@ -117,7 +164,6 @@ const DataLoader = (function() {
                 return value ? value.trim() : '';
             },
             step: function(row, parser) {
-                // Progress per row untuk file besar
                 if (progressCallback) {
                     const progress = Math.min(70, 30 + (row.meta.cursor / row.meta.filesize) * 40);
                     progressCallback(progress, `Memproses data... (${Math.round(progress)}%)`);
@@ -135,31 +181,78 @@ const DataLoader = (function() {
         
         let validCount = 0;
         let invalidCount = 0;
+        let fixedCount = 0;
         const invalidRows = [];
         
         processedData = rawData.map((row, index) => {
-            const latRaw = row.LATITUDE || '';
-            const lngRaw = row.LONGITUDE || '';
+            let latRaw = row.LATITUDE || '';
+            let lngRaw = row.LONGITUDE || '';
             
-            const lat = cleanCoordinate(latRaw);
-            const lng = cleanCoordinate(lngRaw);
+            // Perbaiki format koma
+            latRaw = fixCommaDecimal(latRaw);
+            lngRaw = fixCommaDecimal(lngRaw);
             
-            const isValid = lat !== null && lng !== null && 
-                           !isNaN(lat) && !isNaN(lng) &&
-                           isValidIndonesia(lat, lng);
+            let lat = cleanCoordinate(latRaw);
+            let lng = cleanCoordinate(lngRaw);
+            
+            // Coba swap jika perlu
+            if (lat !== null && lng !== null) {
+                const swapped = tryFixSwappedCoordinates(lat, lng);
+                lat = swapped.lat;
+                lng = swapped.lng;
+            }
+            
+            let isValid = false;
+            let isFixed = false;
+            
+            // Jika tidak valid, coba perbaiki dengan berbagai cara
+            if (lat === null || lng === null || !isValidIndonesia(lat, lng)) {
+                // Coba parse ulang dengan pendekatan berbeda
+                const latStr = latRaw.toString();
+                const lngStr = lngRaw.toString();
+                
+                // Coba hapus semua titik kecuali yang pertama
+                if (latStr.includes('.') && latStr.split('.').length > 2) {
+                    const parts = latStr.split('.');
+                    const newLat = parseFloat(parts[0] + '.' + parts.slice(1).join(''));
+                    if (!isNaN(newLat)) lat = newLat;
+                }
+                if (lngStr.includes('.') && lngStr.split('.').length > 2) {
+                    const parts = lngStr.split('.');
+                    const newLng = parseFloat(parts[0] + '.' + parts.slice(1).join(''));
+                    if (!isNaN(newLng)) lng = newLng;
+                }
+                
+                // Coba swap
+                if (lat !== null && lng !== null) {
+                    const swapped = tryFixSwappedCoordinates(lat, lng);
+                    lat = swapped.lat;
+                    lng = swapped.lng;
+                }
+                
+                isValid = lat !== null && lng !== null && 
+                         !isNaN(lat) && !isNaN(lng) &&
+                         isValidIndonesia(lat, lng);
+                isFixed = isValid;
+            } else {
+                isValid = true;
+            }
             
             if (!isValid) {
                 invalidCount++;
-                if (invalidRows.length < 10) {
+                if (invalidRows.length < 20) {
                     invalidRows.push({
                         index: index,
                         nama: row['NAMA KANTOR'] || 'Unknown',
                         lat: latRaw,
-                        lng: lngRaw
+                        lng: lngRaw,
+                        parsedLat: lat,
+                        parsedLng: lng
                     });
                 }
             } else {
                 validCount++;
+                if (isFixed) fixedCount++;
             }
             
             return {
@@ -167,27 +260,35 @@ const DataLoader = (function() {
                 lat: lat,
                 lng: lng,
                 isValid: isValid,
+                isFixed: isFixed,
                 _rawLat: latRaw,
                 _rawLng: lngRaw
             };
         });
         
+        // Filter data valid
         allData = processedData.filter(row => row.isValid);
         
-        console.log(`📊 Load Data Results:`);
+        // Log informasi detail
+        console.log('📊 ===== HASIL LOAD DATA =====');
         console.log(`  - Total rows: ${rawData.length}`);
         console.log(`  - Valid: ${validCount}`);
         console.log(`  - Invalid: ${invalidCount}`);
+        console.log(`  - Fixed: ${fixedCount}`);
+        console.log(`  - Valid di Indonesia: ${allData.length}`);
         
+        // Log data tidak valid (sample)
         if (invalidRows.length > 0) {
-            console.warn(`⚠️ Contoh data tidak valid:`);
+            console.warn('⚠️ Contoh data tidak valid (max 20):');
             invalidRows.forEach(row => {
-                console.warn(`  - ${row.nama} (lat: ${row.lat}, lng: ${row.lng})`);
+                console.warn(`  - ${row.nama} (lat: ${row.lat}, lng: ${row.lng}) -> parsed: ${row.parsedLat}, ${row.parsedLng}`);
             });
-            if (invalidCount > 10) {
-                console.warn(`  ... dan ${invalidCount - 10} lainnya`);
+            if (invalidCount > 20) {
+                console.warn(`  ... dan ${invalidCount - 20} lainnya`);
             }
         }
+        
+        invalidDataLog = invalidRows;
         
         if (callback) callback(allData, null);
     }
@@ -247,6 +348,8 @@ const DataLoader = (function() {
     function getStats() {
         return {
             total: allData.length,
+            totalRaw: rawData.length,
+            invalid: rawData.length - allData.length,
             regionals: getRegionals().length,
             pakets: getPakets().length,
             provinces: getProvinsis().length
@@ -255,6 +358,10 @@ const DataLoader = (function() {
     
     function getInvalidData() {
         return processedData.filter(row => !row.isValid);
+    }
+    
+    function getInvalidDataLog() {
+        return invalidDataLog;
     }
     
     function isLoadingData() {
@@ -271,6 +378,7 @@ const DataLoader = (function() {
         getProvinsis: getProvinsis,
         getStats: getStats,
         getInvalidData: getInvalidData,
+        getInvalidDataLog: getInvalidDataLog,
         cleanCoordinate: cleanCoordinate,
         isValidIndonesia: isValidIndonesia,
         isLoadingData: isLoadingData
