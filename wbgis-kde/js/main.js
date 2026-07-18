@@ -59,24 +59,39 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
     DataLoader.loadFromCSV(csvData, function(data, error) {
         if (error) {
             console.error('Gagal memuat data:', error);
-            UIController.showInfo('Gagal memuat data. Silakan refresh halaman.');
+            UIController.showInfo('❌ Gagal memuat data. Silakan refresh halaman.');
             UIController.hideLoading();
             return;
         }
         
-        const indonesiaData = data.filter(row => {
-            return MapController.isInIndonesia(row.lat, row.lng);
-        });
+        // Data sudah difilter hanya yang valid di Indonesia oleh DataLoader
+        const validData = data;
         
-        console.log(`✅ Data berhasil dimuat: ${indonesiaData.length} titik di Indonesia`);
+        console.log(`✅ Data berhasil dimuat: ${validData.length} titik valid di Indonesia`);
         
-        UIController.updateDataInfo(indonesiaData.length);
+        if (validData.length === 0) {
+            UIController.showInfo('⚠️ Tidak ada data valid di Indonesia. Periksa format koordinat.');
+            UIController.hideLoading();
+            
+            // Tampilkan data invalid untuk debugging
+            const invalidData = DataLoader.getInvalidData();
+            if (invalidData.length > 0) {
+                console.warn('Data tidak valid:', invalidData);
+                UIController.showInfo(`⚠️ ${invalidData.length} data tidak valid. Cek console untuk detail.`, 8000);
+            }
+            return;
+        }
+        
+        UIController.updateDataInfo(validData.length);
         
         const regionals = DataLoader.getRegionals();
         UIController.populateRegionalFilter(regionals);
         
         const pakets = DataLoader.getPakets();
         UIController.populatePaketFilter(pakets);
+        
+        // Tampilkan informasi jumlah data
+        UIController.showInfo(`✅ ${validData.length} titik valid di Indonesia siap dianalisis`, 3000);
         
         applyAnalysis();
         UIController.hideLoading();
@@ -95,12 +110,18 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
         };
         
         let filteredData = DataLoader.getFilteredData(filters);
+        
+        // Data sudah difilter di Indonesia oleh DataLoader
+        // Tapi kita tambahkan validasi tambahan
         filteredData = filteredData.filter(row => {
-            return MapController.isInIndonesia(row.lat, row.lng);
+            return row.isValid === true;
         });
         
         if (filteredData.length === 0) {
-            UIController.showInfo('⚠️ Tidak ada data yang sesuai dengan filter di Indonesia');
+            UIController.showInfo('⚠️ Tidak ada data yang sesuai dengan filter yang dipilih', 4000);
+            MapController.clearLayers();
+            MapController.fitToData([]);
+            UIController.updateDataInfo(0);
             return;
         }
         
@@ -143,7 +164,7 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
                         average: stats ? stats.average : 0
                     });
                     
-                    UIController.showInfo('✅ Analisis KDE selesai. Area terpadat ditemukan.', 3000);
+                    UIController.showInfo(`✅ KDE selesai. ${filteredData.length} titik dianalisis.`, 3000);
                 }
             }
             
@@ -176,7 +197,6 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
                     const heatData = PointDensityAnalysis.gridToHeatmapData(gridResult, 0.01);
                     
                     if (controls.showHeatmap && heatData.length > 0) {
-                        // Gunakan gradient yang berbeda untuk point density
                         MapController.showHeatmap(heatData, {
                             gradient: {
                                 0.0: 'blue',
@@ -259,10 +279,10 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
             paket: controls.paket
         };
         let data = DataLoader.getFilteredData(filters);
-        data = data.filter(row => MapController.isInIndonesia(row.lat, row.lng));
+        data = data.filter(row => row.isValid);
         
         if (data.length === 0) {
-            UIController.showInfo('Tidak ada data untuk diekspor');
+            UIController.showInfo('⚠️ Tidak ada data untuk diekspor');
             return;
         }
         
@@ -285,7 +305,7 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
         link.click();
         URL.revokeObjectURL(link.href);
         
-        UIController.showInfo('✅ Data berhasil diekspor');
+        UIController.showInfo(`✅ ${data.length} data berhasil diekspor`);
     });
     
     // ============================================
@@ -311,6 +331,6 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
     };
     
     console.log('✅ WebGIS Density Analysis berhasil diinisialisasi');
-    console.log(`📊 Total data: ${DataLoader.getAllData().length} titik`);
+    console.log(`📊 Total data valid: ${DataLoader.getAllData().length} titik`);
     console.log('🌐 Gunakan window.webgis untuk debugging');
 });
