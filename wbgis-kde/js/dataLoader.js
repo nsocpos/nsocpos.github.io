@@ -1,6 +1,6 @@
 /**
  * dataLoader.js
- * Modul untuk memuat dan memproses data CSV dengan validasi ketat
+ * Modul untuk memuat dan memproses data CSV dari file eksternal
  */
 
 const DataLoader = (function() {
@@ -9,6 +9,8 @@ const DataLoader = (function() {
     let rawData = [];
     let processedData = [];
     let allData = [];
+    let isLoading = false;
+    let loadProgress = 0;
     
     /**
      * Membersihkan koordinat dengan validasi yang lebih baik
@@ -19,27 +21,20 @@ const DataLoader = (function() {
         // Hapus spasi dan karakter aneh
         let cleaned = coord.toString().trim().replace(/\s/g, '');
         
-        // Jika koordinat memiliki format dengan banyak titik (seperti -689.418.027.494.068)
-        // maka ambil bagian yang valid
+        // Jika koordinat memiliki format dengan banyak titik
         if (cleaned.includes('.') && cleaned.split('.').length > 3) {
-            // Coba parse dengan menghapus semua titik kecuali yang pertama
             const parts = cleaned.split('.');
             if (parts.length > 2) {
-                // Ambil bagian pertama dan gabungkan sisanya
                 const firstPart = parts[0];
                 const rest = parts.slice(1).join('');
                 cleaned = firstPart + '.' + rest;
             }
         }
         
-        // Konversi ke float
         const parsed = parseFloat(cleaned);
         
-        // Validasi: harus number, tidak NaN, dan dalam rentang koordinat yang masuk akal
         if (isNaN(parsed)) return null;
         
-        // Validasi rentang koordinat (Latitude: -90 s/d 90, Longitude: -180 s/d 180)
-        // Tapi untuk Indonesia, kita batasi lebih ketat
         return parsed;
     }
     
@@ -47,7 +42,6 @@ const DataLoader = (function() {
      * Validasi apakah koordinat berada di Indonesia
      */
     function isValidIndonesia(lat, lng) {
-        // Batas Indonesia
         const MIN_LAT = -11.0;
         const MAX_LAT = 6.0;
         const MIN_LNG = 95.0;
@@ -60,9 +54,55 @@ const DataLoader = (function() {
     }
     
     /**
-     * Memuat data dari string CSV
+     * Memuat data dari file CSV eksternal
+     */
+    function loadFromFile(url, callback, progressCallback) {
+        if (isLoading) {
+            console.warn('Data sedang dimuat...');
+            return;
+        }
+        
+        isLoading = true;
+        loadProgress = 0;
+        
+        // Gunakan Fetch API untuk membaca file
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(csvString => {
+                loadProgress = 30;
+                if (progressCallback) progressCallback(loadProgress, 'Parsing CSV...');
+                
+                parseCSV(csvString, function(data, error) {
+                    isLoading = false;
+                    loadProgress = 100;
+                    if (progressCallback) progressCallback(loadProgress, 'Selesai!');
+                    
+                    if (callback) callback(data, error);
+                }, progressCallback);
+            })
+            .catch(error => {
+                isLoading = false;
+                console.error('Error loading CSV file:', error);
+                if (callback) callback(null, [{ message: error.message }]);
+            });
+    }
+    
+    /**
+     * Memuat data dari string CSV (untuk fallback)
      */
     function loadFromCSV(csvString, callback) {
+        parseCSV(csvString, callback);
+    }
+    
+    /**
+     * Parse CSV string
+     */
+    function parseCSV(csvString, callback, progressCallback) {
         if (typeof Papa === 'undefined') {
             console.error('Papa Parse library tidak ditemukan');
             if (callback) callback(null, [{ message: 'Papa Parse library tidak ditemukan' }]);
@@ -75,6 +115,13 @@ const DataLoader = (function() {
             skipEmptyLines: true,
             transform: function(value) {
                 return value ? value.trim() : '';
+            },
+            step: function(row, parser) {
+                // Progress per row untuk file besar
+                if (progressCallback) {
+                    const progress = Math.min(70, 30 + (row.meta.cursor / row.meta.filesize) * 40);
+                    progressCallback(progress, `Memproses data... (${Math.round(progress)}%)`);
+                }
             }
         });
         
@@ -103,12 +150,14 @@ const DataLoader = (function() {
             
             if (!isValid) {
                 invalidCount++;
-                invalidRows.push({
-                    index: index,
-                    nama: row['NAMA KANTOR'] || 'Unknown',
-                    lat: latRaw,
-                    lng: lngRaw
-                });
+                if (invalidRows.length < 10) {
+                    invalidRows.push({
+                        index: index,
+                        nama: row['NAMA KANTOR'] || 'Unknown',
+                        lat: latRaw,
+                        lng: lngRaw
+                    });
+                }
             } else {
                 validCount++;
             }
@@ -123,22 +172,20 @@ const DataLoader = (function() {
             };
         });
         
-        // Filter data valid
         allData = processedData.filter(row => row.isValid);
         
-        // Log informasi
         console.log(`📊 Load Data Results:`);
         console.log(`  - Total rows: ${rawData.length}`);
         console.log(`  - Valid: ${validCount}`);
         console.log(`  - Invalid: ${invalidCount}`);
         
         if (invalidRows.length > 0) {
-            console.warn(`⚠️ Data tidak valid (${invalidRows.length}):`);
-            invalidRows.slice(0, 5).forEach(row => {
-                console.warn(`  - Row ${row.index}: ${row.nama} (lat: ${row.lat}, lng: ${row.lng})`);
+            console.warn(`⚠️ Contoh data tidak valid:`);
+            invalidRows.forEach(row => {
+                console.warn(`  - ${row.nama} (lat: ${row.lat}, lng: ${row.lng})`);
             });
-            if (invalidRows.length > 5) {
-                console.warn(`  ... dan ${invalidRows.length - 5} lainnya`);
+            if (invalidCount > 10) {
+                console.warn(`  ... dan ${invalidCount - 10} lainnya`);
             }
         }
         
@@ -210,7 +257,12 @@ const DataLoader = (function() {
         return processedData.filter(row => !row.isValid);
     }
     
+    function isLoadingData() {
+        return isLoading;
+    }
+    
     return {
+        loadFromFile: loadFromFile,
         loadFromCSV: loadFromCSV,
         getAllData: getAllData,
         getFilteredData: getFilteredData,
@@ -220,7 +272,8 @@ const DataLoader = (function() {
         getStats: getStats,
         getInvalidData: getInvalidData,
         cleanCoordinate: cleanCoordinate,
-        isValidIndonesia: isValidIndonesia
+        isValidIndonesia: isValidIndonesia,
+        isLoadingData: isLoadingData
     };
 })();
 
