@@ -1,6 +1,6 @@
 /**
  * main.js
- * File utama dengan optimasi loading
+ * File utama dengan optimasi loading - TANPA EXPORT
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -58,7 +58,6 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
     // 3. LOAD DATA DENGAN PROGRESS
     // ============================================
     
-    // Gunakan setTimeout agar UI tidak freeze
     setTimeout(function() {
         UIController.showLoading('📊 Memproses data...');
         
@@ -88,10 +87,8 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
             const pakets = DataLoader.getPakets();
             UIController.populatePaketFilter(pakets);
             
-            // Tampilkan informasi
             UIController.showInfo(`✅ ${validData.length} titik siap dianalisis`, 2000);
             
-            // Jalankan analisis setelah delay singkat
             setTimeout(function() {
                 UIController.showLoading('🔬 Menganalisis kepadatan...');
                 setTimeout(function() {
@@ -110,7 +107,6 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
     let isAnalyzing = false;
     
     function applyAnalysis() {
-        // Cegah analisis berulang
         if (isAnalyzing) {
             console.log('⏳ Analisis sedang berjalan, lewati...');
             return;
@@ -118,7 +114,6 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
         
         isAnalyzing = true;
         
-        // Gunakan setTimeout agar tidak blocking UI
         setTimeout(function() {
             try {
                 const controls = UIController.getControlValues();
@@ -159,7 +154,7 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
                             points,
                             controls.kdeRadius,
                             bounds,
-                            30 // Grid lebih kecil untuk kecepatan
+                            30
                         );
                         
                         if (kdeResult) {
@@ -231,6 +226,7 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
                     
                     if (controls.showHotspots && hotspotResult.hotspots.length > 0) {
                         MapController.showHotspots(hotspotResult.hotspots);
+                        UIController.showInfo(`🔥 Ditemukan ${hotspotResult.hotspots.length} Hotspot`, 3000);
                     }
                     
                     if (controls.showColdspots && hotspotResult.coldspots.length > 0) {
@@ -245,7 +241,6 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
                     }
                 }
                 
-                // Fit peta ke data
                 MapController.fitToData(filteredData);
                 
             } catch (error) {
@@ -257,7 +252,6 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
         }, 50);
     }
     
-    // Debounce function untuk mencegah analisis berulang
     function debounceAnalysis() {
         if (analysisTimeout) {
             clearTimeout(analysisTimeout);
@@ -268,10 +262,11 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
     }
     
     // ============================================
-    // 5. EVENT LISTENER DENGAN DEBOUNCE
+    // 5. EVENT LISTENER
     // ============================================
     
-    document.querySelector('.btn-primary')?.addEventListener('click', function() {
+    // Tombol Apply
+    document.getElementById('btnApply')?.addEventListener('click', function() {
         UIController.showLoading('🔄 Menganalisis ulang...');
         setTimeout(function() {
             applyAnalysis();
@@ -281,46 +276,11 @@ PAKET 2B;98300;MANOKWARI;-;REGIONAL 6;KC;Non LPU;Jl. Siliwangi No. 28 Manokwari,
         }, 100);
     });
     
-    document.querySelector('.btn-danger')?.addEventListener('click', function() {
+    // Tombol Reset
+    document.getElementById('btnReset')?.addEventListener('click', function() {
         MapController.resetView();
         UIController.updateDensityStats(null);
         UIController.showInfo('🔄 Peta direset', 2000);
-    });
-    
-    document.querySelector('.btn-success')?.addEventListener('click', function() {
-        const controls = UIController.getControlValues();
-        const filters = {
-            regional: controls.regional,
-            paket: controls.paket
-        };
-        let data = DataLoader.getFilteredData(filters);
-        data = data.filter(row => row.isValid);
-        
-        if (data.length === 0) {
-            UIController.showInfo('⚠️ Tidak ada data untuk diekspor');
-            return;
-        }
-        
-        const headers = ['Paket', 'NAMA KANTOR', 'REGIONAL', 'PROVINSI', 'ALAMAT', 'LATITUDE', 'LONGITUDE'];
-        let csvContent = headers.join(';') + '\n';
-        
-        data.forEach(row => {
-            const values = headers.map(h => {
-                if (h === 'LATITUDE') return row.lat;
-                if (h === 'LONGITUDE') return row.lng;
-                return `"${(row[h] || '').replace(/"/g, '""')}"`;
-            });
-            csvContent += values.join(';') + '\n';
-        });
-        
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = `analisis_kepadatan_${new Date().toISOString().slice(0,10)}.csv`;
-        link.click();
-        URL.revokeObjectURL(link.href);
-        
-        UIController.showInfo(`✅ ${data.length} data diekspor`, 2000);
     });
     
     // Auto-apply dengan debounce saat map bergerak
