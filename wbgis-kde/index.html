@@ -7,7 +7,8 @@
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-heatmap@1.0.0/dist/leaflet-heatmap.css" />
+    
+    <!-- Leaflet.markercluster CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     
@@ -104,14 +105,14 @@
         </div>
         
         <!-- Buttons -->
-        <button class="btn btn-primary">
+        <button class="btn btn-primary" id="btnApply">
             <i class="fas fa-sync-alt"></i> Terapkan Analisis
         </button>
         <div class="btn-group">
-            <button class="btn btn-success">
+            <button class="btn btn-success" id="btnExport">
                 <i class="fas fa-download"></i> Ekspor
             </button>
-            <button class="btn btn-danger">
+            <button class="btn btn-danger" id="btnReset">
                 <i class="fas fa-undo"></i> Reset
             </button>
         </div>
@@ -170,11 +171,18 @@
         <div id="infoContent">Klik pada titik untuk melihat detail</div>
     </div>
 
-    <!-- Libraries -->
+    <!-- Libraries - Urutan loading penting! -->
+    <!-- 1. Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://unpkg.com/leaflet-heatmap@1.0.0/dist/leaflet-heatmap.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    
+    <!-- 2. Leaflet Heatmap - Gunakan versi yang kompatibel -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-heatmap/1.0.0/leaflet-heatmap.js"></script>
+    
+    <!-- 3. Leaflet.markercluster -->
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+    
+    <!-- 4. Papa Parse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <!-- Custom Scripts -->
     <script src="js/dataLoader.js"></script>
