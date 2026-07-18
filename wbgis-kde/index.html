@@ -104,18 +104,13 @@
             </select>
         </div>
         
-        <!-- Buttons -->
+        <!-- Buttons - Tanpa Export -->
         <button class="btn btn-primary" id="btnApply">
             <i class="fas fa-sync-alt"></i> Terapkan Analisis
         </button>
-        <div class="btn-group">
-            <button class="btn btn-success" id="btnExport">
-                <i class="fas fa-download"></i> Ekspor
-            </button>
-            <button class="btn btn-danger" id="btnReset">
-                <i class="fas fa-undo"></i> Reset
-            </button>
-        </div>
+        <button class="btn btn-danger" id="btnReset">
+            <i class="fas fa-undo"></i> Reset Peta
+        </button>
     </div>
     
     <!-- Statistics Panel -->
@@ -171,16 +166,10 @@
         <div id="infoContent">Klik pada titik untuk melihat detail</div>
     </div>
 
-    <!-- Libraries - Urutan loading penting! -->
-    <!-- 1. Leaflet JS -->
+    <!-- Libraries -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <!-- Alternatif CDN Leaflet Heatmap -->
-<script src="https://cdn.jsdelivr.net/npm/leaflet-heatmap@1.0.0/dist/leaflet-heatmap.min.js"></script>
-    <!-- 3. Leaflet.markercluster -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet-heatmap/1.0.0/leaflet-heatmap.js"></script>
     <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-    
-    <!-- 4. Papa Parse -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     
     <!-- Custom Scripts -->
