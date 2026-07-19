@@ -5,11 +5,10 @@
 const KDEAnalysis = (function() {
     'use strict';
     
-    function calculateKDE(points, radius, bounds, gridSize = 25) {
+    function calculateKDE(points, radius, bounds, gridSize = 30) {
         if (!points || points.length === 0) return null;
         
-        // Batasi grid untuk kecepatan
-        gridSize = Math.min(gridSize, 30);
+        gridSize = Math.min(gridSize, 35);
         
         const minLat = bounds.getSouth ? bounds.getSouth() : bounds.minLat;
         const maxLat = bounds.getNorth ? bounds.getNorth() : bounds.maxLat;
@@ -22,16 +21,17 @@ const KDEAnalysis = (function() {
         const bandWidthSq = bandWidth * bandWidth;
         const normFactor = 1 / (bandWidth * Math.sqrt(2 * Math.PI));
         
-        // Use Float32Array for memory efficiency
         const grid = [];
         for (let i = 0; i < gridSize; i++) {
             grid[i] = new Float32Array(gridSize);
         }
         
-        // Prepare points for fast access
-        const pts = points.map(p => ({ lat: p.lat, lng: p.lng, intensity: p.intensity || 1.0 }));
+        const pts = points.map(p => ({ 
+            lat: p.lat, 
+            lng: p.lng, 
+            intensity: p.intensity || 1.0 
+        }));
         
-        // Compute density - optimized
         for (let i = 0; i < gridSize; i++) {
             const lat = minLat + i * latStep;
             for (let j = 0; j < gridSize; j++) {
@@ -48,12 +48,10 @@ const KDEAnalysis = (function() {
                                   Math.exp(-0.5 * distSq / bandWidthSq);
                     }
                 }
-                
                 grid[i][j] = density;
             }
         }
         
-        // Normalize
         let maxDensity = 0;
         for (let i = 0; i < gridSize; i++) {
             for (let j = 0; j < gridSize; j++) {
@@ -84,12 +82,12 @@ const KDEAnalysis = (function() {
         };
     }
     
-    function kdeToHeatmapData(kdeResult, threshold = 0.01, maxPoints = 1500) {
+    function kdeToHeatmapData(kdeResult, threshold = 0.01, maxPoints = 2000) {
         if (!kdeResult) return [];
         
         const { grid, gridSize, minLat, maxLat, minLng, maxLng, latStep, lngStep } = kdeResult;
         const heatData = [];
-        const step = Math.max(1, Math.floor(gridSize / 20));
+        const step = Math.max(1, Math.floor(gridSize / 25));
         
         for (let i = 0; i < gridSize; i += step) {
             for (let j = 0; j < gridSize; j += step) {
@@ -104,7 +102,6 @@ const KDEAnalysis = (function() {
                 }
             }
         }
-        
         return heatData;
     }
     
@@ -136,7 +133,7 @@ const KDEAnalysis = (function() {
         
         const { grid, gridSize } = kdeResult;
         let sum = 0, count = 0, min = Infinity, max = 0;
-        const step = Math.max(1, Math.floor(gridSize / 10));
+        const step = Math.max(1, Math.floor(gridSize / 15));
         
         for (let i = 0; i < gridSize; i += step) {
             for (let j = 0; j < gridSize; j += step) {
