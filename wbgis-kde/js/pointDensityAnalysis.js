@@ -1,5 +1,5 @@
 /**
- * pointDensityAnalysis.js - Point Density Analysis
+ * pointDensityAnalysis.js - Point Density Analysis untuk Eksperimen
  */
 
 const PointDensityAnalysis = (function() {
