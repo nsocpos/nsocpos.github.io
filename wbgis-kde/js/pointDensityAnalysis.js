@@ -1,24 +1,16 @@
 /**
- * pointDensityAnalysis.js
- * Modul untuk analisis Point Density - OPTIMASI
+ * pointDensityAnalysis.js - OPTIMASI SUPER CEPAT
  */
 
 const PointDensityAnalysis = (function() {
     'use strict';
     
-    /**
-     * Menghitung point density dengan optimasi
-     * Menggunakan spatial indexing sederhana
-     */
     function calculatePointDensity(points, radius, bounds = null) {
-        if (!points || points.length === 0) {
-            return [];
-        }
+        if (!points || points.length === 0) return [];
         
         const radiusDeg = radius / 111.32;
         const radiusDegSq = radiusDeg * radiusDeg;
         
-        // Filter points jika ada bounds
         let filteredPoints = points;
         if (bounds) {
             const minLat = bounds.getSouth ? bounds.getSouth() : bounds.minLat;
@@ -32,11 +24,7 @@ const PointDensityAnalysis = (function() {
             );
         }
         
-        const n = filteredPoints.length;
-        if (n === 0) return [];
-        
-        // Optimasi: Gunakan grid-based spatial indexing
-        const gridSize = Math.max(5, Math.min(20, Math.sqrt(n)));
+        const gridSize = Math.max(10, Math.min(30, Math.sqrt(filteredPoints.length)));
         const latMin = Math.min(...filteredPoints.map(p => p.lat));
         const latMax = Math.max(...filteredPoints.map(p => p.lat));
         const lngMin = Math.min(...filteredPoints.map(p => p.lng));
@@ -45,7 +33,6 @@ const PointDensityAnalysis = (function() {
         const latStep = (latMax - latMin) / gridSize;
         const lngStep = (lngMax - lngMin) / gridSize;
         
-        // Buat grid index
         const grid = {};
         filteredPoints.forEach((p, idx) => {
             const gi = Math.floor((p.lat - latMin) / latStep);
@@ -55,17 +42,11 @@ const PointDensityAnalysis = (function() {
             grid[key].push(idx);
         });
         
-        // Hitung density untuk setiap titik
         const result = filteredPoints.map((point, index) => {
             let count = 0;
-            const pointLat = point.lat;
-            const pointLng = point.lng;
+            const gi = Math.floor((point.lat - latMin) / latStep);
+            const gj = Math.floor((point.lng - lngMin) / lngStep);
             
-            // Cari di grid tetangga
-            const gi = Math.floor((pointLat - latMin) / latStep);
-            const gj = Math.floor((pointLng - lngMin) / lngStep);
-            
-            // Periksa grid tetangga (3x3)
             for (let di = -1; di <= 1; di++) {
                 for (let dj = -1; dj <= 1; dj++) {
                     const key = (gi + di) + ',' + (gj + dj);
@@ -75,8 +56,8 @@ const PointDensityAnalysis = (function() {
                     for (const idx of cells) {
                         if (idx === index) continue;
                         const other = filteredPoints[idx];
-                        const dLat = other.lat - pointLat;
-                        const dLng = other.lng - pointLng;
+                        const dLat = other.lat - point.lat;
+                        const dLng = other.lng - point.lng;
                         const distSq = dLat * dLat + dLng * dLng;
                         
                         if (distSq <= radiusDegSq) {
@@ -89,23 +70,12 @@ const PointDensityAnalysis = (function() {
             return {
                 ...point,
                 density: count,
-                normalizedDensity: 0,
                 isHotspot: false,
                 isColdspot: false
             };
         });
         
-        // Normalisasi density
         const densities = result.map(r => r.density);
-        const maxDensity = Math.max(...densities, 1);
-        const minDensity = Math.min(...densities, 0);
-        const range = maxDensity - minDensity || 1;
-        
-        result.forEach(r => {
-            r.normalizedDensity = (r.density - minDensity) / range;
-        });
-        
-        // Identifikasi hotspot dan coldspot
         const mean = densities.reduce((a, b) => a + b, 0) / densities.length;
         const variance = densities.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / densities.length;
         const stdDev = Math.sqrt(variance);
@@ -119,13 +89,8 @@ const PointDensityAnalysis = (function() {
         return result;
     }
     
-    /**
-     * Menghitung density pada grid dengan optimasi
-     */
     function calculateGridDensity(points, radius, bounds, gridSize = 30) {
-        if (!points || points.length === 0) {
-            return null;
-        }
+        if (!points || points.length === 0) return null;
         
         gridSize = Math.min(gridSize, 35);
         
@@ -144,29 +109,13 @@ const PointDensityAnalysis = (function() {
             grid[i] = new Float32Array(gridSize);
         }
         
-        // Optimasi: Pre-calculate points array
         const pts = points.map(p => ({ lat: p.lat, lng: p.lng }));
-        
-        // Gunakan parallel-like processing dengan chunk
-        const chunkSize = Math.ceil(gridSize / 2);
         
         for (let i = 0; i < gridSize; i++) {
             const lat = minLat + i * latStep;
             for (let j = 0; j < gridSize; j++) {
                 const lng = minLng + j * lngStep;
                 let count = 0;
-                
-                // Optimasi: Skip jika terlalu jauh dari semua titik
-                let skip = true;
-                for (const point of pts) {
-                    const dLat = point.lat - lat;
-                    const dLng = point.lng - lng;
-                    if (Math.abs(dLat) < radiusDeg && Math.abs(dLng) < radiusDeg) {
-                        skip = false;
-                        break;
-                    }
-                }
-                if (skip) continue;
                 
                 for (const point of pts) {
                     const dLat = point.lat - lat;
@@ -177,12 +126,10 @@ const PointDensityAnalysis = (function() {
                         count++;
                     }
                 }
-                
                 grid[i][j] = count;
             }
         }
         
-        // Normalisasi
         let maxDensity = 0;
         for (let i = 0; i < gridSize; i++) {
             for (let j = 0; j < gridSize; j++) {
@@ -214,70 +161,34 @@ const PointDensityAnalysis = (function() {
         };
     }
     
-    function gridToHeatmapData(gridResult, threshold = 0.01, maxPoints = 3000) {
+    function gridToHeatmapData(gridResult, threshold = 0.01, maxPoints = 2000) {
         if (!gridResult) return [];
         
         const { grid, gridSize, minLat, maxLat, minLng, maxLng, latStep, lngStep } = gridResult;
         const heatData = [];
-        
         const step = Math.max(1, Math.floor(gridSize / 25));
         
         for (let i = 0; i < gridSize; i += step) {
             for (let j = 0; j < gridSize; j += step) {
                 const density = grid[i][j];
                 if (density > threshold) {
-                    const lat = minLat + i * latStep;
-                    const lng = minLng + j * lngStep;
-                    heatData.push([lat, lng, density]);
-                    
-                    if (heatData.length >= maxPoints) {
-                        return heatData;
-                    }
+                    heatData.push([
+                        minLat + i * latStep,
+                        minLng + j * lngStep,
+                        density
+                    ]);
+                    if (heatData.length >= maxPoints) return heatData;
                 }
             }
         }
-        
         return heatData;
-    }
-    
-    function getDensityStats(gridResult) {
-        if (!gridResult || !gridResult.grid) return null;
-        
-        const { grid, gridSize } = gridResult;
-        let sum = 0;
-        let count = 0;
-        let min = Infinity;
-        let max = 0;
-        
-        const step = Math.max(1, Math.floor(gridSize / 15));
-        
-        for (let i = 0; i < gridSize; i += step) {
-            for (let j = 0; j < gridSize; j += step) {
-                const val = grid[i][j];
-                if (val > 0) {
-                    sum += val;
-                    count++;
-                    if (val < min) min = val;
-                    if (val > max) max = val;
-                }
-            }
-        }
-        
-        return {
-            average: count > 0 ? sum / count : 0,
-            min: min === Infinity ? 0 : min,
-            max: max,
-            totalCells: count,
-            gridSize: gridSize
-        };
     }
     
     function findHighestDensity(gridResult) {
         if (!gridResult) return null;
         
         const { grid, gridSize, minLat, maxLat, minLng, maxLng, latStep, lngStep } = gridResult;
-        let maxVal = 0;
-        let maxI = 0, maxJ = 0;
+        let maxVal = 0, maxI = 0, maxJ = 0;
         
         for (let i = 0; i < gridSize; i++) {
             for (let j = 0; j < gridSize; j++) {
@@ -296,9 +207,36 @@ const PointDensityAnalysis = (function() {
         };
     }
     
+    function getDensityStats(gridResult) {
+        if (!gridResult || !gridResult.grid) return null;
+        
+        const { grid, gridSize } = gridResult;
+        let sum = 0, count = 0, min = Infinity, max = 0;
+        const step = Math.max(1, Math.floor(gridSize / 15));
+        
+        for (let i = 0; i < gridSize; i += step) {
+            for (let j = 0; j < gridSize; j += step) {
+                const val = grid[i][j];
+                if (val > 0) {
+                    sum += val;
+                    count++;
+                    if (val < min) min = val;
+                    if (val > max) max = val;
+                }
+            }
+        }
+        
+        return {
+            average: count > 0 ? sum / count : 0,
+            min: min === Infinity ? 0 : min,
+            max: max,
+            totalCells: count
+        };
+    }
+    
     function identifyHotspots(points, radius, threshold = 1.5) {
         if (!points || points.length === 0) {
-            return { hotspots: [], coldspots: [], neutral: [], stats: { total: 0, hotspotCount: 0, coldspotCount: 0, neutralCount: 0 } };
+            return { hotspots: [], coldspots: [], neutral: [], stats: { total: 0, hotspotCount: 0, coldspotCount: 0 } };
         }
         
         const densityResult = calculatePointDensity(points, radius);
@@ -316,7 +254,8 @@ const PointDensityAnalysis = (function() {
                 total: densityResult.length,
                 hotspotCount: hotspots.length,
                 coldspotCount: coldspots.length,
-                neutralCount: neutral.length
+                hotspotPercent: (hotspots.length / densityResult.length * 100).toFixed(1),
+                coldspotPercent: (coldspots.length / densityResult.length * 100).toFixed(1)
             }
         };
     }
@@ -325,8 +264,8 @@ const PointDensityAnalysis = (function() {
         calculatePointDensity: calculatePointDensity,
         calculateGridDensity: calculateGridDensity,
         gridToHeatmapData: gridToHeatmapData,
-        getDensityStats: getDensityStats,
         findHighestDensity: findHighestDensity,
+        getDensityStats: getDensityStats,
         identifyHotspots: identifyHotspots
     };
 })();
