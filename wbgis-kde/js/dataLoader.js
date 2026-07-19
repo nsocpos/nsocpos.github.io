@@ -1,18 +1,17 @@
 /**
- * dataLoader.js - OPTIMASI SUPER CEPAT
- * Hanya load data valid, abaikan data invalid
+ * dataLoader.js - DENGAN DATA VALID DAN INVALID
  */
 
 const DataLoader = (function() {
     'use strict';
     
     let allData = [];
+    let invalidData = [];
     let isLoading = false;
     let invalidCount = 0;
     let fixedCount = 0;
     let totalRaw = 0;
     
-    // Batas Indonesia
     const INDONESIA_BOUNDS = {
         minLat: -12.0,
         maxLat: 8.0,
@@ -20,17 +19,11 @@ const DataLoader = (function() {
         maxLng: 142.0
     };
     
-    /**
-     * Fast coordinate cleaner - optimized
-     */
     function fastCleanCoordinate(coord) {
         if (!coord) return null;
         
         let cleaned = coord.toString().trim().replace(/\s/g, '');
-        
-        if (cleaned.includes(',')) {
-            cleaned = cleaned.replace(/,/g, '.');
-        }
+        cleaned = cleaned.replace(/,/g, '.');
         
         const dotCount = (cleaned.match(/\./g) || []).length;
         if (dotCount > 1) {
@@ -46,13 +39,9 @@ const DataLoader = (function() {
         
         const parsed = parseFloat(cleaned);
         if (isNaN(parsed) || parsed < -180 || parsed > 180) return null;
-        
         return parsed;
     }
     
-    /**
-     * Quick validation for Indonesia
-     */
     function isValidIndonesia(lat, lng) {
         return lat !== null && lng !== null && 
                !isNaN(lat) && !isNaN(lng) &&
@@ -60,9 +49,6 @@ const DataLoader = (function() {
                lng >= INDONESIA_BOUNDS.minLng && lng <= INDONESIA_BOUNDS.maxLng;
     }
     
-    /**
-     * Fast parse CSV with minimal processing
-     */
     function loadFromFile(url, callback, progressCallback) {
         if (isLoading) {
             console.warn('Loading in progress...');
@@ -71,6 +57,7 @@ const DataLoader = (function() {
         
         isLoading = true;
         allData = [];
+        invalidData = [];
         invalidCount = 0;
         fixedCount = 0;
         totalRaw = 0;
@@ -97,14 +84,11 @@ const DataLoader = (function() {
                     }
                 });
                 
-                if (results.errors.length > 0) {
-                    console.warn('Some parsing errors:', results.errors);
-                }
-                
                 const rows = results.data;
                 totalRaw = rows.length;
                 
                 const validData = [];
+                const invalidRows = [];
                 
                 for (let i = 0; i < rows.length; i++) {
                     const row = rows[i];
@@ -118,11 +102,18 @@ const DataLoader = (function() {
                     
                     let isValid = false;
                     let isFixed = false;
+                    let invalidReason = '';
                     
                     if (lat !== null && lng !== null) {
                         isValid = isValidIndonesia(lat, lng);
+                        if (!isValid) {
+                            invalidReason = 'Koordinat di luar Indonesia';
+                        }
+                    } else {
+                        invalidReason = 'Format koordinat tidak valid';
                     }
                     
+                    // Coba perbaiki dengan swap
                     if (!isValid && lat !== null && lng !== null) {
                         if (isValidIndonesia(lng, lat)) {
                             const temp = lat;
@@ -130,9 +121,11 @@ const DataLoader = (function() {
                             lng = temp;
                             isValid = true;
                             isFixed = true;
+                            invalidReason = '';
                         }
                     }
                     
+                    // Coba perbaiki dengan menghapus titik
                     if (!isValid && latRaw && lngRaw) {
                         const latNoDot = parseFloat(latRaw.replace(/\./g, ''));
                         const lngNoDot = parseFloat(lngRaw.replace(/\./g, ''));
@@ -142,6 +135,7 @@ const DataLoader = (function() {
                                 lng = lngNoDot;
                                 isValid = true;
                                 isFixed = true;
+                                invalidReason = '';
                             }
                         }
                     }
@@ -151,11 +145,21 @@ const DataLoader = (function() {
                             ...row,
                             lat: lat,
                             lng: lng,
-                            isFixed: isFixed
+                            isFixed: isFixed,
+                            isValid: true
                         });
                         if (isFixed) fixedCount++;
                     } else {
                         invalidCount++;
+                        invalidRows.push({
+                            ...row,
+                            lat: lat,
+                            lng: lng,
+                            isValid: false,
+                            invalidReason: invalidReason || 'Tidak dapat diperbaiki',
+                            _rawLat: latRaw,
+                            _rawLng: lngRaw
+                        });
                     }
                     
                     if (i % 100 === 0 && progressCallback) {
@@ -165,13 +169,13 @@ const DataLoader = (function() {
                 }
                 
                 allData = validData;
+                invalidData = invalidRows;
                 
                 console.log('📊 ===== LOAD DATA COMPLETE =====');
                 console.log(`  - Total: ${totalRaw}`);
-                console.log(`  - Valid: ${allData.length}`);
-                console.log(`  - Invalid: ${invalidCount}`);
+                console.log(`  - Valid: ${allData.length} (${(allData.length/totalRaw*100).toFixed(1)}%)`);
+                console.log(`  - Invalid: ${invalidCount} (${(invalidCount/totalRaw*100).toFixed(1)}%)`);
                 console.log(`  - Fixed: ${fixedCount}`);
-                console.log(`  - Valid %: ${(allData.length/totalRaw*100).toFixed(1)}%`);
                 
                 isLoading = false;
                 if (progressCallback) progressCallback(100, 'Selesai!');
@@ -186,6 +190,10 @@ const DataLoader = (function() {
     
     function getAllData() {
         return allData;
+    }
+    
+    function getInvalidData() {
+        return invalidData;
     }
     
     function getFilteredData(filters = {}) {
@@ -239,6 +247,7 @@ const DataLoader = (function() {
     return {
         loadFromFile: loadFromFile,
         getAllData: getAllData,
+        getInvalidData: getInvalidData,
         getFilteredData: getFilteredData,
         getRegionals: getRegionals,
         getPakets: getPakets,
