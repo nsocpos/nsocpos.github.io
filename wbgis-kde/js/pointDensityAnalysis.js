@@ -1,5 +1,5 @@
 /**
- * pointDensityAnalysis.js - OPTIMASI SUPER CEPAT
+ * pointDensityAnalysis.js - Point Density Analysis
  */
 
 const PointDensityAnalysis = (function() {
@@ -17,11 +17,7 @@ const PointDensityAnalysis = (function() {
             const maxLat = bounds.getNorth ? bounds.getNorth() : bounds.maxLat;
             const minLng = bounds.getWest ? bounds.getWest() : bounds.minLng;
             const maxLng = bounds.getEast ? bounds.getEast() : bounds.maxLng;
-            
-            filteredPoints = points.filter(p => 
-                p.lat >= minLat && p.lat <= maxLat &&
-                p.lng >= minLng && p.lng <= maxLng
-            );
+            filteredPoints = points.filter(p => p.lat >= minLat && p.lat <= maxLat && p.lng >= minLng && p.lng <= maxLng);
         }
         
         const gridSize = Math.max(10, Math.min(30, Math.sqrt(filteredPoints.length)));
@@ -29,7 +25,6 @@ const PointDensityAnalysis = (function() {
         const latMax = Math.max(...filteredPoints.map(p => p.lat));
         const lngMin = Math.min(...filteredPoints.map(p => p.lng));
         const lngMax = Math.max(...filteredPoints.map(p => p.lng));
-        
         const latStep = (latMax - latMin) / gridSize;
         const lngStep = (lngMax - lngMin) / gridSize;
         
@@ -52,27 +47,18 @@ const PointDensityAnalysis = (function() {
                     const key = (gi + di) + ',' + (gj + dj);
                     const cells = grid[key];
                     if (!cells) continue;
-                    
                     for (const idx of cells) {
                         if (idx === index) continue;
                         const other = filteredPoints[idx];
                         const dLat = other.lat - point.lat;
                         const dLng = other.lng - point.lng;
                         const distSq = dLat * dLat + dLng * dLng;
-                        
-                        if (distSq <= radiusDegSq) {
-                            count++;
-                        }
+                        if (distSq <= radiusDegSq) count++;
                     }
                 }
             }
             
-            return {
-                ...point,
-                density: count,
-                isHotspot: false,
-                isColdspot: false
-            };
+            return { ...point, density: count, isHotspot: false, isColdspot: false };
         });
         
         const densities = result.map(r => r.density);
@@ -91,14 +77,12 @@ const PointDensityAnalysis = (function() {
     
     function calculateGridDensity(points, radius, bounds, gridSize = 30) {
         if (!points || points.length === 0) return null;
-        
         gridSize = Math.min(gridSize, 35);
         
         const minLat = bounds.getSouth ? bounds.getSouth() : bounds.minLat;
         const maxLat = bounds.getNorth ? bounds.getNorth() : bounds.maxLat;
         const minLng = bounds.getWest ? bounds.getWest() : bounds.minLng;
         const maxLng = bounds.getEast ? bounds.getEast() : bounds.maxLng;
-        
         const latStep = (maxLat - minLat) / gridSize;
         const lngStep = (maxLng - minLng) / gridSize;
         const radiusDeg = radius / 111.32;
@@ -116,15 +100,11 @@ const PointDensityAnalysis = (function() {
             for (let j = 0; j < gridSize; j++) {
                 const lng = minLng + j * lngStep;
                 let count = 0;
-                
                 for (const point of pts) {
                     const dLat = point.lat - lat;
                     const dLng = point.lng - lng;
                     const distSq = dLat * dLat + dLng * dLng;
-                    
-                    if (distSq <= radiusDegSq) {
-                        count++;
-                    }
+                    if (distSq <= radiusDegSq) count++;
                 }
                 grid[i][j] = count;
             }
@@ -147,23 +127,13 @@ const PointDensityAnalysis = (function() {
         }
         
         return {
-            grid: grid,
-            gridSize: gridSize,
-            minLat: minLat,
-            maxLat: maxLat,
-            minLng: minLng,
-            maxLng: maxLng,
-            latStep: latStep,
-            lngStep: lngStep,
-            maxDensity: maxDensity,
-            radius: radius,
-            points: points.length
+            grid, gridSize, minLat, maxLat, minLng, maxLng,
+            latStep, lngStep, maxDensity, radius, points: points.length
         };
     }
     
     function gridToHeatmapData(gridResult, threshold = 0.01, maxPoints = 2000) {
         if (!gridResult) return [];
-        
         const { grid, gridSize, minLat, maxLat, minLng, maxLng, latStep, lngStep } = gridResult;
         const heatData = [];
         const step = Math.max(1, Math.floor(gridSize / 25));
@@ -172,11 +142,7 @@ const PointDensityAnalysis = (function() {
             for (let j = 0; j < gridSize; j += step) {
                 const density = grid[i][j];
                 if (density > threshold) {
-                    heatData.push([
-                        minLat + i * latStep,
-                        minLng + j * lngStep,
-                        density
-                    ]);
+                    heatData.push([minLat + i * latStep, minLng + j * lngStep, density]);
                     if (heatData.length >= maxPoints) return heatData;
                 }
             }
@@ -186,52 +152,28 @@ const PointDensityAnalysis = (function() {
     
     function findHighestDensity(gridResult) {
         if (!gridResult) return null;
-        
         const { grid, gridSize, minLat, maxLat, minLng, maxLng, latStep, lngStep } = gridResult;
         let maxVal = 0, maxI = 0, maxJ = 0;
-        
         for (let i = 0; i < gridSize; i++) {
             for (let j = 0; j < gridSize; j++) {
-                if (grid[i][j] > maxVal) {
-                    maxVal = grid[i][j];
-                    maxI = i;
-                    maxJ = j;
-                }
+                if (grid[i][j] > maxVal) { maxVal = grid[i][j]; maxI = i; maxJ = j; }
             }
         }
-        
-        return {
-            lat: minLat + maxI * latStep,
-            lng: minLng + maxJ * lngStep,
-            density: maxVal
-        };
+        return { lat: minLat + maxI * latStep, lng: minLng + maxJ * lngStep, density: maxVal };
     }
     
     function getDensityStats(gridResult) {
         if (!gridResult || !gridResult.grid) return null;
-        
         const { grid, gridSize } = gridResult;
         let sum = 0, count = 0, min = Infinity, max = 0;
         const step = Math.max(1, Math.floor(gridSize / 15));
-        
         for (let i = 0; i < gridSize; i += step) {
             for (let j = 0; j < gridSize; j += step) {
                 const val = grid[i][j];
-                if (val > 0) {
-                    sum += val;
-                    count++;
-                    if (val < min) min = val;
-                    if (val > max) max = val;
-                }
+                if (val > 0) { sum += val; count++; if (val < min) min = val; if (val > max) max = val; }
             }
         }
-        
-        return {
-            average: count > 0 ? sum / count : 0,
-            min: min === Infinity ? 0 : min,
-            max: max,
-            totalCells: count
-        };
+        return { average: count > 0 ? sum / count : 0, min: min === Infinity ? 0 : min, max: max, totalCells: count };
     }
     
     function identifyHotspots(points, radius, threshold = 1.5) {
@@ -240,16 +182,12 @@ const PointDensityAnalysis = (function() {
         }
         
         const densityResult = calculatePointDensity(points, radius);
-        
         const hotspots = densityResult.filter(p => p.isHotspot);
         const coldspots = densityResult.filter(p => p.isColdspot);
         const neutral = densityResult.filter(p => !p.isHotspot && !p.isColdspot);
         
         return {
-            hotspots: hotspots,
-            coldspots: coldspots,
-            neutral: neutral,
-            all: densityResult,
+            hotspots, coldspots, neutral, all: densityResult,
             stats: {
                 total: densityResult.length,
                 hotspotCount: hotspots.length,
@@ -261,15 +199,9 @@ const PointDensityAnalysis = (function() {
     }
     
     return {
-        calculatePointDensity: calculatePointDensity,
-        calculateGridDensity: calculateGridDensity,
-        gridToHeatmapData: gridToHeatmapData,
-        findHighestDensity: findHighestDensity,
-        getDensityStats: getDensityStats,
-        identifyHotspots: identifyHotspots
+        calculatePointDensity, calculateGridDensity, gridToHeatmapData,
+        findHighestDensity, getDensityStats, identifyHotspots
     };
 })();
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = PointDensityAnalysis;
-}
+if (typeof module !== 'undefined' && module.exports) { module.exports = PointDensityAnalysis; }
