@@ -1,5 +1,5 @@
 /**
- * main.js - Aplikasi Utama dengan Data Eksperimen
+ * main.js - Aplikasi Eksperimen Kepadatan Fasilitas
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -23,29 +23,18 @@ document.addEventListener('DOMContentLoaded', function() {
     let isAnalyzing = false;
     
     // ============================================
-    // 2. FUNGSI TINGKAT KEPADATAN
+    // 2. DATA EKSPERIMEN
     // ============================================
     
-    function getDensityLevel(density, maxDensity) {
-        if (maxDensity === 0) return { level: 'Tidak Ada', color: '#999', icon: '⚪' };
-        const ratio = density / maxDensity;
-        if (ratio > 0.8) return { level: 'Sangat Tinggi', color: '#c62828', icon: '🔴' };
-        if (ratio > 0.6) return { level: 'Tinggi', color: '#e65100', icon: '🟠' };
-        if (ratio > 0.4) return { level: 'Sedang', color: '#f9a825', icon: '🟡' };
-        if (ratio > 0.2) return { level: 'Rendah', color: '#2e7d32', icon: '🟢' };
-        return { level: 'Sangat Rendah', color: '#1565c0', icon: '🔵' };
-    }
-    
-    // ============================================
-    // 3. LOAD DATA
-    // ============================================
+    // Data CSV dari file data.csv
+    const csvFilePath = 'data/data.csv';
     
     function updateLoading(message) {
         if (loadingProgress) loadingProgress.textContent = message;
     }
     
     DataLoader.loadFromFile(
-        'data/data.csv',
+        csvFilePath,
         function(data, error) {
             if (error) {
                 dataInfo.className = 'data-info error';
@@ -68,11 +57,16 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('statInvalid').textContent = stats.invalid;
             document.getElementById('statFixed').textContent = stats.fixed;
             
+            document.getElementById('gridSizeDisplay').textContent = '30x30';
+            
             console.log('📊 ===== DATA EKSPERIMEN =====');
             console.log(`  Total Data: ${stats.totalRaw} titik`);
             console.log(`  ✅ Data Valid: ${stats.total} titik (${stats.validPercent}%)`);
             console.log(`  ❌ Data Invalid: ${stats.invalid} titik (${stats.invalidPercent}%)`);
             console.log(`  🔧 Data Diperbaiki: ${stats.fixed} titik (${stats.fixedPercent}%)`);
+            console.log(`  📊 Grid Size: 30x30`);
+            console.log(`  🔬 Kernel: Gaussian`);
+            console.log(`  📏 Threshold: 0.01`);
             
             dataInfo.className = 'data-info';
             dataInfo.innerHTML = `
@@ -91,7 +85,7 @@ document.addEventListener('DOMContentLoaded', function() {
     );
     
     // ============================================
-    // 4. FILTERS
+    // 3. FILTERS
     // ============================================
     
     function populateFilters() {
@@ -114,6 +108,20 @@ document.addEventListener('DOMContentLoaded', function() {
             opt.textContent = p;
             filterPaket.appendChild(opt);
         });
+    }
+    
+    // ============================================
+    // 4. FUNGSI TINGKAT KEPADATAN
+    // ============================================
+    
+    function getDensityLevel(density, maxDensity) {
+        if (maxDensity === 0) return { level: 'Tidak Ada', color: '#999', icon: '⚪' };
+        const ratio = density / maxDensity;
+        if (ratio > 0.8) return { level: 'Sangat Tinggi', color: '#c62828', icon: '🔴' };
+        if (ratio > 0.6) return { level: 'Tinggi', color: '#e65100', icon: '🟠' };
+        if (ratio > 0.4) return { level: 'Sedang', color: '#f9a825', icon: '🟡' };
+        if (ratio > 0.2) return { level: 'Rendah', color: '#2e7d32', icon: '🟢' };
+        return { level: 'Sangat Rendah', color: '#1565c0', icon: '🔵' };
     }
     
     // ============================================
@@ -168,6 +176,11 @@ document.addEventListener('DOMContentLoaded', function() {
                         densest ? `${densest.lat.toFixed(3)}, ${densest.lng.toFixed(3)}` : '-';
                     document.getElementById('avgDensity').textContent = 
                         kdeStats ? kdeStats.average.toFixed(4) : '-';
+                    
+                    console.log('📊 ===== HASIL KDE =====');
+                    console.log(`  Area Terpadat: ${densest ? densest.lat.toFixed(3) + ', ' + densest.lng.toFixed(3) : '-'}`);
+                    console.log(`  Rata-rata: ${kdeStats ? kdeStats.average.toFixed(4) : '-'}`);
+                    console.log(`  Max Density: ${maxDensity}`);
                 }
             }
             
@@ -197,6 +210,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Update stats
                 document.getElementById('hotspotCount').textContent = hotspotResult.stats.hotspotCount;
                 document.getElementById('coldspotCount').textContent = hotspotResult.stats.coldspotCount;
+                
+                console.log('📊 ===== HASIL POINT DENSITY =====');
+                console.log(`  Hotspot: ${hotspotResult.stats.hotspotCount} titik (${hotspotResult.stats.hotspotPercent}%)`);
+                console.log(`  Coldspot: ${hotspotResult.stats.coldspotCount} titik (${hotspotResult.stats.coldspotPercent}%)`);
                 
                 // Update density dengan maxDensity
                 if (densityResult.length > 0 && maxDensity > 0) {
@@ -336,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function renderRegionalTab(results) {
         if (!results.regionalData || results.regionalData.length === 0) {
-            return '<p style="text-align:center;padding:20px;color:#666;">Tidak ada data regional</p>';
+            return '<p style="text-align:center;padding:15px;color:#666;">Tidak ada data regional</p>';
         }
         
         let html = `
@@ -373,12 +390,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${reg.neutral}</td>
                     <td>${percent}%</td>
                     <td>
-                        <span style="color:${densityInfo.color};font-weight:600;font-size:12px;">
+                        <span style="color:${densityInfo.color};font-weight:600;font-size:11px;">
                             ${densityInfo.icon} ${densityInfo.level}
                         </span>
                     </td>
                     <td>
-                        <div class="bar-chart" style="width:100px;">
+                        <div class="bar-chart" style="width:80px;">
                             <div class="bar bar-hotspot" style="width:${(reg.hotspot/maxTotal*100).toFixed(1)}%;"></div>
                             <div class="bar bar-coldspot" style="width:${(reg.coldspot/maxTotal*100).toFixed(1)}%;margin-left:${(reg.hotspot/maxTotal*100).toFixed(1)}%;"></div>
                         </div>
@@ -397,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function renderHotspotTab(results) {
         if (!results.hotspots || results.hotspots.length === 0) {
-            return '<p style="text-align:center;padding:20px;color:#666;">🔥 Tidak ada data hotspot</p>';
+            return '<p style="text-align:center;padding:15px;color:#666;">🔥 Tidak ada data hotspot</p>';
         }
         
         const regCount = {};
@@ -444,12 +461,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td style="color:#c62828;font-weight:600;">${count}</td>
                     <td>${percent}%</td>
                     <td>
-                        <span style="color:${densityInfo.color};font-weight:600;font-size:12px;">
+                        <span style="color:${densityInfo.color};font-weight:600;font-size:11px;">
                             ${densityInfo.icon} ${densityInfo.level}
                         </span>
                     </td>
                     <td>
-                        <div class="bar-chart" style="width:100px;">
+                        <div class="bar-chart" style="width:80px;">
                             <div class="bar bar-hotspot" style="width:${(count/maxCount*100).toFixed(1)}%;"></div>
                         </div>
                     </td>
@@ -480,7 +497,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${item['PROVINSI'] || '-'}</td>
                     <td>
                         ${density}
-                        <span style="font-size:10px;color:${densityInfo.color};">
+                        <span style="font-size:9px;color:${densityInfo.color};">
                             (${densityInfo.icon})
                         </span>
                     </td>
@@ -499,7 +516,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function renderColdspotTab(results) {
         if (!results.coldspots || results.coldspots.length === 0) {
-            return '<p style="text-align:center;padding:20px;color:#666;">❄️ Tidak ada data coldspot</p>';
+            return '<p style="text-align:center;padding:15px;color:#666;">❄️ Tidak ada data coldspot</p>';
         }
         
         const regCount = {};
@@ -546,12 +563,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td style="color:#1565c0;font-weight:600;">${count}</td>
                     <td>${percent}%</td>
                     <td>
-                        <span style="color:${densityInfo.color};font-weight:600;font-size:12px;">
+                        <span style="color:${densityInfo.color};font-weight:600;font-size:11px;">
                             ${densityInfo.icon} ${densityInfo.level}
                         </span>
                     </td>
                     <td>
-                        <div class="bar-chart" style="width:100px;">
+                        <div class="bar-chart" style="width:80px;">
                             <div class="bar bar-coldspot" style="width:${(count/maxCount*100).toFixed(1)}%;"></div>
                         </div>
                     </td>
@@ -582,7 +599,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${item['PROVINSI'] || '-'}</td>
                     <td>
                         ${density}
-                        <span style="font-size:10px;color:${densityInfo.color};">
+                        <span style="font-size:9px;color:${densityInfo.color};">
                             (${densityInfo.icon})
                         </span>
                     </td>
@@ -601,7 +618,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function renderAllDataTab(results) {
         if (!results.allData || results.allData.length === 0) {
-            return '<p style="text-align:center;padding:20px;color:#666;">Tidak ada data</p>';
+            return '<p style="text-align:center;padding:15px;color:#666;">Tidak ada data</p>';
         }
         
         let html = `
@@ -639,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${item['PROVINSI'] || '-'}</td>
                     <td>${density}</td>
                     <td>
-                        <span style="color:${densityInfo.color};font-weight:600;font-size:11px;">
+                        <span style="color:${densityInfo.color};font-weight:600;font-size:10px;">
                             ${densityInfo.icon} ${densityInfo.level}
                         </span>
                     </td>
@@ -662,7 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function renderDensityTab(results) {
         if (!results.allData || results.allData.length === 0) {
-            return '<p style="text-align:center;padding:20px;color:#666;">Tidak ada data</p>';
+            return '<p style="text-align:center;padding:15px;color:#666;">Tidak ada data</p>';
         }
         
         const densityLevels = {
@@ -706,18 +723,18 @@ document.addEventListener('DOMContentLoaded', function() {
         let html = `
             <div class="result-section">
                 <h5><i class="fas fa-chart-bar"></i> Distribusi Tingkat Kepadatan</h5>
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:8px;margin-bottom:12px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:6px;margin-bottom:10px;">
         `;
         
         sortedLevels.forEach(level => {
             const count = densityLevels[level] || 0;
             const percent = total > 0 ? ((count / total) * 100).toFixed(1) : 0;
             html += `
-                <div style="text-align:center;background:${colors[level]}22;padding:8px;border-radius:6px;border:2px solid ${colors[level]};">
-                    <div style="font-size:24px;">${icons[level]}</div>
-                    <div style="font-size:12px;font-weight:600;color:${colors[level]};">${level}</div>
-                    <div style="font-size:18px;font-weight:700;color:${colors[level]};">${count}</div>
-                    <div style="font-size:10px;color:#666;">${percent}%</div>
+                <div style="text-align:center;background:${colors[level]}22;padding:6px;border-radius:5px;border:2px solid ${colors[level]};">
+                    <div style="font-size:20px;">${icons[level]}</div>
+                    <div style="font-size:11px;font-weight:600;color:${colors[level]};">${level}</div>
+                    <div style="font-size:16px;font-weight:700;color:${colors[level]};">${count}</div>
+                    <div style="font-size:9px;color:#666;">${percent}%</div>
                 </div>
             `;
         });
@@ -725,8 +742,8 @@ document.addEventListener('DOMContentLoaded', function() {
         html += `
                 </div>
                 
-                <h5 style="margin-top:12px;">📊 Bar Chart Tingkat Kepadatan</h5>
-                <div style="background:#f5f5f5;padding:12px;border-radius:8px;">
+                <h5 style="margin-top:8px;">📊 Bar Chart Tingkat Kepadatan</h5>
+                <div style="background:#f5f5f5;padding:10px;border-radius:6px;">
         `;
         
         sortedLevels.forEach(level => {
@@ -735,17 +752,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const barWidth = (count / maxCount) * 100;
             
             html += `
-                <div style="display:flex;align-items:center;margin:4px 0;">
-                    <span style="width:100px;font-size:12px;font-weight:600;color:${colors[level]};">
+                <div style="display:flex;align-items:center;margin:3px 0;">
+                    <span style="width:80px;font-size:11px;font-weight:600;color:${colors[level]};">
                         ${icons[level]} ${level}
                     </span>
-                    <span style="width:40px;font-size:12px;font-weight:600;text-align:right;margin-right:8px;">
+                    <span style="width:30px;font-size:11px;font-weight:600;text-align:right;margin-right:6px;">
                         ${count}
                     </span>
-                    <div class="bar-chart" style="flex:1;height:20px;">
-                        <div style="height:100%;width:${barWidth}%;background:${colors[level]};border-radius:4px;transition:width 0.5s;"></div>
+                    <div class="bar-chart" style="flex:1;height:16px;">
+                        <div style="height:100%;width:${barWidth}%;background:${colors[level]};border-radius:3px;transition:width 0.5s;"></div>
                     </div>
-                    <span style="width:50px;font-size:11px;color:#666;text-align:right;margin-left:8px;">
+                    <span style="width:40px;font-size:10px;color:#666;text-align:right;margin-left:6px;">
                         ${percent.toFixed(1)}%
                     </span>
                 </div>
@@ -764,10 +781,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     </thead>
                     <tbody>
                         <tr><td>Sangat Tinggi</td><td>🔴</td><td>> 80% dari kepadatan maksimum</td><td style="background:#c62828;color:white;text-align:center;">Merah</td></tr>
-                        <tr><td>Tinggi</td><td>🟠</td><td>> 60% - 80% dari kepadatan maksimum</td><td style="background:#e65100;color:white;text-align:center;">Oranye</td></tr>
-                        <tr><td>Sedang</td><td>🟡</td><td>> 40% - 60% dari kepadatan maksimum</td><td style="background:#f9a825;color:white;text-align:center;">Kuning</td></tr>
-                        <tr><td>Rendah</td><td>🟢</td><td>> 20% - 40% dari kepadatan maksimum</td><td style="background:#2e7d32;color:white;text-align:center;">Hijau</td></tr>
-                        <tr><td>Sangat Rendah</td><td>🔵</td><td>≤ 20% dari kepadatan maksimum</td><td style="background:#1565c0;color:white;text-align:center;">Biru</td></tr>
+                        <tr><td>Tinggi</td><td>🟠</td><td>> 60% - 80%</td><td style="background:#e65100;color:white;text-align:center;">Oranye</td></tr>
+                        <tr><td>Sedang</td><td>🟡</td><td>> 40% - 60%</td><td style="background:#f9a825;color:white;text-align:center;">Kuning</td></tr>
+                        <tr><td>Rendah</td><td>🟢</td><td>> 20% - 40%</td><td style="background:#2e7d32;color:white;text-align:center;">Hijau</td></tr>
+                        <tr><td>Sangat Rendah</td><td>🔵</td><td>≤ 20%</td><td style="background:#1565c0;color:white;text-align:center;">Biru</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -876,6 +893,6 @@ document.addEventListener('DOMContentLoaded', function() {
         MapController, runAnalysis, showTab: window.showTab
     };
     
-    console.log('✅ WebGIS siap!');
+    console.log('✅ WebGIS Eksperimen siap!');
     console.log(`📊 ${allData.length} data valid`);
 });
