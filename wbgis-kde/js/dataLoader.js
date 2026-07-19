@@ -135,7 +135,7 @@ const DataLoader = (function() {
                 console.log(`  Total: ${totalRaw}`);
                 console.log(`  ✅ Valid: ${allData.length} (${(allData.length/totalRaw*100).toFixed(1)}%)`);
                 console.log(`  ❌ Invalid: ${invalidCount} (${(invalidCount/totalRaw*100).toFixed(1)}%)`);
-                console.log(`  🔧 Fixed: ${fixedCount}`);
+                console.log(`  🔧 Fixed: ${fixedCount} (${(fixedCount/totalRaw*100).toFixed(1)}%)`);
                 
                 isLoading = false;
                 if (progressCallback) progressCallback(100, 'Selesai!');
@@ -184,7 +184,9 @@ const DataLoader = (function() {
             totalRaw: totalRaw,
             invalid: invalidCount,
             fixed: fixedCount,
-            validPercent: (allData.length / totalRaw * 100).toFixed(1)
+            validPercent: (allData.length / totalRaw * 100).toFixed(1),
+            invalidPercent: (invalidCount / totalRaw * 100).toFixed(1),
+            fixedPercent: (fixedCount / totalRaw * 100).toFixed(1)
         };
     }
     
