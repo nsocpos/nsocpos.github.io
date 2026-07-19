@@ -1,5 +1,5 @@
 /**
- * kdeAnalysis.js - Kernel Density Estimation
+ * kdeAnalysis.js - Kernel Density Estimation untuk Eksperimen
  */
 
 const KDEAnalysis = (function() {
