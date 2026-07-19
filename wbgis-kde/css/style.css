@@ -1,67 +1,244 @@
 /* ============================================
-   NONAKTIFKAN ANIMASI GAMBAR
+   WEBGIS - ANALISIS KEPADATAN FASILITAS
    ============================================ */
 
-/* Matikan semua animasi pada gambar */
-img, .leaflet-marker-icon, .leaflet-control-zoom a, 
-.leaflet-tile, .leaflet-layer, .leaflet-control-attribution {
-    animation: none !important;
-    transition: none !important;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; overflow: hidden; height: 100vh; }
 
-/* Matikan animasi pulse hotspot */
-.hotspot-pulse {
-    animation: none !important;
+/* HEADER */
+.header {
+    background: linear-gradient(135deg, #1a237e, #0d47a1);
+    color: white;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 55px;
+    z-index: 1001;
+    position: relative;
 }
+.header h1 { font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.header h1 i { font-size: 22px; }
+.header-info { display: flex; gap: 15px; font-size: 12px; background: rgba(255,255,255,0.1); padding: 5px 14px; border-radius: 20px; }
+.header-info span { display: flex; align-items: center; gap: 5px; }
 
-/* Matikan animasi loading */
+/* MAP */
+#map { height: calc(100vh - 55px); width: 100%; position: relative; }
+
+/* CONTROL PANEL */
+.control-panel {
+    position: absolute;
+    top: 70px;
+    left: 10px;
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    width: 270px;
+    max-height: calc(100vh - 140px);
+    overflow-y: auto;
+}
+.control-panel::-webkit-scrollbar { width: 4px; }
+.control-panel::-webkit-scrollbar-thumb { background: #1a237e; border-radius: 10px; }
+
+.panel-title { font-size: 15px; font-weight: 600; color: #1a237e; margin-bottom: 12px; border-bottom: 2px solid #e8eaf6; padding-bottom: 8px; }
+
+.data-info {
+    background: #e8f5e9; padding: 8px 12px; border-radius: 5px; margin-bottom: 12px;
+    font-size: 12px; border-left: 4px solid #2e7d32;
+}
+.data-info.warning { background: #fff3e0; border-left-color: #f57c00; }
+.data-info.error { background: #ffebee; border-left-color: #c62828; }
+
+.control-group { margin-bottom: 12px; }
+.control-group label { display: block; font-size: 12px; font-weight: 500; color: #333; margin-bottom: 4px; }
+.control-group select, .control-group input[type="range"] {
+    width: 100%; padding: 6px 10px; border: 1px solid #ddd; border-radius: 5px; font-size: 12px; background: white;
+}
+.control-group input[type="range"] { padding: 0; height: 5px; background: #e8eaf6; outline: none; -webkit-appearance: none; }
+.control-group input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none; width: 16px; height: 16px;
+    border-radius: 50%; background: #1a237e; cursor: pointer;
+}
+.range-value { display: flex; justify-content: space-between; font-size: 11px; color: #666; margin-top: 3px; }
+
+/* BUTTONS */
+.btn {
+    width: 100%; padding: 8px; border: none; border-radius: 5px; font-size: 13px;
+    font-weight: 500; cursor: pointer; transition: all 0.3s; display: flex;
+    align-items: center; justify-content: center; gap: 6px; margin-top: 6px;
+}
+.btn-primary { background: linear-gradient(135deg, #1a237e, #0d47a1); color: white; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(13,71,161,0.4); }
+.btn-danger { background: linear-gradient(135deg, #c62828, #e53935); color: white; }
+.btn-danger:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(198,40,40,0.4); }
+
+/* STATISTICS */
+.stats-panel {
+    position: absolute; bottom: 20px; left: 10px; background: white;
+    padding: 12px 16px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 1000; min-width: 180px;
+}
+.stats-panel h4 { font-size: 12px; color: #666; margin-bottom: 6px; }
+.stat-item { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; }
+.stat-item .label { color: #666; }
+.stat-item .value { font-weight: 600; color: #1a237e; }
+
+/* LEGEND */
+.legend {
+    position: absolute; bottom: 20px; right: 10px; background: white;
+    padding: 12px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 1000; min-width: 130px;
+}
+.legend-title { font-size: 12px; font-weight: 600; color: #333; margin-bottom: 6px; text-align: center; }
+.legend-item { display: flex; align-items: center; margin: 4px 0; font-size: 11px; }
+.legend-color { width: 25px; height: 10px; margin-right: 8px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.1); }
+
+/* RESULTS PANEL - TABEL UTAMA */
+.results-panel {
+    position: absolute; top: 70px; right: 10px; background: white;
+    padding: 15px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+    z-index: 1000; max-width: 600px; max-height: calc(100vh - 160px);
+    overflow-y: auto; display: none; font-size: 12px; min-width: 450px;
+}
+.results-panel.active { display: block; animation: slideIn 0.3s ease; }
+@keyframes slideIn { from { opacity:0; transform:translateX(20px); } to { opacity:1; transform:translateX(0); } }
+
+.results-panel::-webkit-scrollbar { width: 5px; }
+.results-panel::-webkit-scrollbar-thumb { background: #1a237e; border-radius: 10px; }
+.results-panel::-webkit-scrollbar-track { background: #f0f0f0; border-radius: 10px; }
+
+.results-panel .panel-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px; border-bottom: 2px solid #e8eaf6; padding-bottom: 8px;
+}
+.results-panel .panel-header h4 { font-size: 14px; color: #1a237e; margin: 0; }
+.results-panel .panel-header .close-btn { cursor: pointer; color: #666; font-size: 18px; padding: 0 5px; }
+.results-panel .panel-header .close-btn:hover { color: #c62828; }
+
+/* SUMMARY STATS */
+.summary-stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px;
+    margin-bottom: 12px; background: #f5f5f5; padding: 10px; border-radius: 8px;
+}
+.summary-stats .stat-item { text-align: center; flex-direction: column; }
+.summary-stats .stat-item .stat-value { font-size: 20px; font-weight: 700; color: #1a237e; }
+.summary-stats .stat-item .stat-label { font-size: 10px; color: #666; text-transform: uppercase; }
+.summary-stats .stat-item.hotspot .stat-value { color: #c62828; }
+.summary-stats .stat-item.coldspot .stat-value { color: #1565c0; }
+
+/* TAB BUTTONS */
+.tab-buttons {
+    display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.tab-buttons button {
+    padding: 4px 12px; border: 1px solid #ddd; border-radius: 4px;
+    background: white; cursor: pointer; font-size: 11px; transition: all 0.3s;
+}
+.tab-buttons button:hover { background: #f0f0f0; }
+.tab-buttons button.active { background: #1a237e; color: white; border-color: #1a237e; }
+
+/* TABLES */
+.results-panel table {
+    width: 100%; border-collapse: collapse; font-size: 11px; margin-bottom: 10px;
+}
+.results-panel table th {
+    background: #1a237e; color: white; padding: 6px 8px; text-align: left;
+    position: sticky; top: 0; z-index: 10;
+}
+.results-panel table td { padding: 5px 8px; border-bottom: 1px solid #eee; }
+.results-panel table tr:hover td { background: #f5f5f5; }
+.results-panel table .hotspot-row td { border-left: 3px solid #c62828; }
+.results-panel table .coldspot-row td { border-left: 3px solid #1565c0; }
+
+/* BADGES */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 9px; font-weight: 600; }
+.badge-hotspot { background: #ffebee; color: #c62828; }
+.badge-coldspot { background: #e3f2fd; color: #1565c0; }
+.badge-neutral { background: #e8eaf6; color: #1a237e; }
+
+/* RESULT SECTIONS */
+.result-section { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 12px; }
+.result-section:last-child { border-bottom: none; }
+.result-section h5 { font-size: 13px; color: #1a237e; margin: 0 0 8px 0; display: flex; align-items: center; gap: 6px; }
+
+/* KDE SUMMARY */
+.kde-summary {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    background: #f5f5f5; padding: 8px 12px; border-radius: 6px; margin-bottom: 10px;
+}
+.kde-item { display: flex; flex-direction: column; }
+.kde-label { font-size: 9px; color: #666; text-transform: uppercase; }
+.kde-value { font-size: 13px; font-weight: 600; color: #1a237e; }
+
+/* STAT CARDS */
+.hotspot-stats, .coldspot-stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px;
+}
+.stat-card { background: #f5f5f5; padding: 8px; border-radius: 6px; text-align: center; }
+.stat-card-value { font-size: 20px; font-weight: 700; display: block; }
+.hotspot-stats .stat-card-value { color: #c62828; }
+.coldspot-stats .stat-card-value { color: #1565c0; }
+.stat-card-label { font-size: 9px; color: #666; text-transform: uppercase; }
+
+/* BAR CHART */
+.bar-chart { background: #e0e0e0; height: 16px; border-radius: 4px; overflow: hidden; position: relative; }
+.bar-chart .bar { height: 100%; border-radius: 4px; transition: width 0.5s; }
+.bar-chart .bar-hotspot { background: #c62828; }
+.bar-chart .bar-coldspot { background: #1565c0; }
+.bar-chart .bar-neutral { background: #1a237e; }
+
+/* TOOLTIP */
+.leaflet-tooltip.custom-tooltip {
+    background: rgba(255,255,255,0.95) !important;
+    border: 2px solid #1a237e !important;
+    border-radius: 8px !important;
+    padding: 8px 14px !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.25) !important;
+    color: #333 !important;
+    min-width: 160px !important;
+    text-align: center !important;
+}
+.leaflet-tooltip.custom-tooltip::before { border-top-color: #1a237e !important; }
+.leaflet-tooltip.hotspot-tooltip { border-color: #c62828 !important; background: rgba(255,235,238,0.95) !important; }
+.leaflet-tooltip.hotspot-tooltip::before { border-top-color: #c62828 !important; }
+.leaflet-tooltip.coldspot-tooltip { border-color: #1565c0 !important; background: rgba(227,242,253,0.95) !important; }
+.leaflet-tooltip.coldspot-tooltip::before { border-top-color: #1565c0 !important; }
+
+/* LOADING */
+.loading-overlay {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(255,255,255,0.9); display: flex; flex-direction: column;
+    align-items: center; justify-content: center; z-index: 9999;
+}
+.loading-overlay.hidden { display: none; }
 .spinner {
-    animation: none !important;
-    border-top-color: #1a237e;
+    width: 40px; height: 40px; border: 4px solid #e8eaf6;
+    border-top: 4px solid #1a237e; border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+.loading-text { margin-top: 12px; color: #333; font-size: 14px; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .header h1 { font-size: 14px; }
+    .header-info { font-size: 10px; padding: 4px 10px; gap: 8px; }
+    .control-panel { width: 200px; top: 60px; left: 8px; padding: 10px; max-height: calc(100vh - 160px); }
+    .results-panel { max-width: 320px; min-width: 280px; top: 60px; right: 8px; padding: 10px; max-height: calc(100vh - 130px); }
+    .summary-stats { grid-template-columns: 1fr 1fr; }
+    .kde-summary { grid-template-columns: 1fr 1fr; }
+    .hotspot-stats, .coldspot-stats { grid-template-columns: 1fr 1fr; }
+    .stats-panel { bottom: 12px; left: 8px; padding: 8px 12px; min-width: 130px; }
+    .legend { bottom: 12px; right: 8px; padding: 8px; min-width: 100px; }
 }
 
-/* Alternatif loading tanpa animasi */
-.loading-overlay .spinner {
-    border: 4px solid #1a237e;
-    border-radius: 50%;
-    width: 40px;
-    height: 40px;
+/* NONAKTIFKAN ANIMASI GAMBAR */
+img, .leaflet-marker-icon, .leaflet-control-zoom a,
+.leaflet-tile, .leaflet-layer, .leaflet-control-attribution {
+    animation: none !important; transition: none !important;
 }
-
-/* ============================================
-   COLDSPOT STYLING - TAMBAHAN
-   ============================================ */
-
-.coldspot-marker {
-    background: #1565c0;
-    border: 2px solid #448aff;
-    border-radius: 50%;
-}
-
-/* Tooltip coldspot */
-.leaflet-tooltip.coldspot-tooltip {
-    border-color: #1565c0 !important;
-    background: rgba(227, 242, 253, 0.95) !important;
-}
-
-.leaflet-tooltip.coldspot-tooltip::before {
-    border-top-color: #1565c0 !important;
-}
-
-/* ============================================
-   DATA INVALID INFO
-   ============================================ */
-
-.invalid-data-info {
-    background: #ffebee;
-    padding: 8px 12px;
-    border-radius: 5px;
-    margin-bottom: 12px;
-    font-size: 12px;
-    border-left: 4px solid #c62828;
-}
-
-.invalid-data-info .count {
-    font-weight: 700;
-    color: #c62828;
-}
+.hotspot-pulse { animation: none !important; }
