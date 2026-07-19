@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebGIS - KDE & Point Density Analysis</title>
+    <title>WebGIS - Analisis Kepadatan Fasilitas</title>
     
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <!-- Leaflet.markercluster CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-heatmap@1.0.0/dist/leaflet-heatmap.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
     <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
     
@@ -22,7 +21,7 @@
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay">
         <div class="spinner"></div>
-        <div class="loading-text">Memuat Data dan Menganalisis...</div>
+        <div class="loading-text">Memuat Data...</div>
         <div id="loadingProgress" style="margin-top: 10px; font-size: 14px; color: #666;"></div>
     </div>
     
@@ -30,7 +29,7 @@
     <div class="header">
         <h1>
             <i class="fas fa-map-marked-alt"></i>
-            Analisis Kepadatan Fasilitas
+            WebGIS Analisis Kepadatan Fasilitas
         </h1>
         <div class="header-info">
             <span><i class="fas fa-database"></i> <span id="totalData">0</span> Fasilitas</span>
@@ -48,10 +47,9 @@
             <i class="fas fa-sliders-h"></i> Kontrol Analisis
         </div>
         
-        <!-- Info jumlah data -->
-        <div style="background: #e8eaf6; padding: 8px 12px; border-radius: 5px; margin-bottom: 12px; font-size: 12px;">
-            <i class="fas fa-info-circle"></i> 
-            <span id="dataInfo">Memuat data...</span>
+        <!-- Info Data -->
+        <div class="data-info" id="dataInfo">
+            <i class="fas fa-spinner fa-spin"></i> Memuat data...
         </div>
         
         <!-- Metode Analisis -->
@@ -62,11 +60,7 @@
                 <option value="point">Point Density Analysis</option>
             </select>
         </div>
-        <!-- Di dalam control panel, tambahkan ini setelah metode analisis -->
-        <div style="background: #e8f5e9; padding: 8px 12px; border-radius: 5px; margin-bottom: 12px; font-size: 12px; border-left: 4px solid #2e7d32;">
-            <i class="fas fa-check-circle" style="color: #2e7d32;"></i> 
-            <span id="dataInfo">Memuat data...</span>
-        </div>
+        
         <!-- KDE Radius -->
         <div class="control-group kde-group">
             <label><i class="fas fa-expand"></i> Radius KDE (km)</label>
@@ -89,7 +83,7 @@
             </div>
         </div>
         
-        <!-- Tampilkan -->
+        <!-- Tampilkan Layer -->
         <div class="control-group">
             <label><i class="fas fa-layer-group"></i> Tampilkan</label>
             <div class="checkbox-group">
@@ -170,22 +164,22 @@
             <span>❄️ Coldspot</span>
         </div>
     </div>
-
-<!-- Results Panel - Tabel Hasil Analisisbjkkj -->
-<div class="results-panel" id="resultsPanel">
-    <div class="panel-header">
-        <h4><i class="fas fa-table"></i> <span id="resultsTitle">Hasil Analisis</span></h4>
-        <span class="close-btn" id="closeResults">&times;</span>
-    </div>
-    <div id="resultsContent">
-        <p style="text-align:center;padding:20px;color:#666;">Belum ada data</p>
-    </div>
-</div>
     
     <!-- Info Box -->
     <div class="info-box" id="infoBox">
         <h4><i class="fas fa-info-circle"></i> Informasi</h4>
         <div id="infoContent">Klik pada titik untuk melihat detail</div>
+    </div>
+    
+    <!-- Results Panel -->
+    <div class="results-panel" id="resultsPanel">
+        <div class="panel-header">
+            <h4><i class="fas fa-table"></i> <span id="resultsTitle">Hasil Analisis</span></h4>
+            <span class="close-btn" id="closeResults">&times;</span>
+        </div>
+        <div id="resultsContent">
+            <p style="text-align:center;padding:20px;color:#666;">Belum ada data</p>
+        </div>
     </div>
 
     <!-- Libraries -->
