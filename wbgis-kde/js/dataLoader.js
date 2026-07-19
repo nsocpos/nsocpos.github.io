@@ -1,5 +1,5 @@
 /**
- * dataLoader.js - Load dan Validasi Data
+ * dataLoader.js - Load dan Validasi Data Eksperimen
  */
 
 const DataLoader = (function() {
@@ -131,7 +131,7 @@ const DataLoader = (function() {
                 allData = validData;
                 invalidData = invalidRows;
                 
-                console.log('📊 ===== DATA VALIDASI =====');
+                console.log('📊 ===== DATA EKSPERIMEN =====');
                 console.log(`  Total: ${totalRaw}`);
                 console.log(`  ✅ Valid: ${allData.length} (${(allData.length/totalRaw*100).toFixed(1)}%)`);
                 console.log(`  ❌ Invalid: ${invalidCount} (${(invalidCount/totalRaw*100).toFixed(1)}%)`);
