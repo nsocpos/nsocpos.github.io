@@ -1,5 +1,5 @@
 /**
- * mapController.js - DENGAN HOVER EFFECT
+ * mapController.js - COLDSPOT FIX, TANPA ANIMASI
  */
 
 const MapController = (function() {
@@ -291,7 +291,10 @@ const MapController = (function() {
     function showHotspots(data, options = {}) {
         if (!map) return;
         removeHotspots();
-        if (!data || data.length === 0) return;
+        if (!data || data.length === 0) {
+            console.log('Tidak ada data hotspot');
+            return;
+        }
         
         const filteredData = data.filter(item => {
             const lat = item.lat || item.LATITUDE;
@@ -299,7 +302,12 @@ const MapController = (function() {
             return isInIndonesia(lat, lng);
         });
         
-        if (filteredData.length === 0) return;
+        if (filteredData.length === 0) {
+            console.log('Tidak ada hotspot di Indonesia');
+            return;
+        }
+        
+        console.log(`Menampilkan ${filteredData.length} hotspot`);
         
         const defaultOptions = {
             radius: 10,
@@ -315,7 +323,7 @@ const MapController = (function() {
         hotspotLayer = L.layerGroup();
         const totalData = filteredData.length;
         
-        filteredData.forEach((item, index) => {
+        filteredData.forEach((item) => {
             const lat = item.lat || item.LATITUDE;
             const lng = item.lng || item.LONGITUDE;
             if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
@@ -362,19 +370,11 @@ const MapController = (function() {
                 offset: [0, -15]
             });
             
-            // Pulse animation
-            setTimeout(() => {
-                const el = marker.getElement ? marker.getElement() : null;
-                if (el) {
-                    el.style.animation = `hotspot-pulse 1.5s ease-in-out infinite`;
-                    el.style.animationDelay = `${(index * 0.1) % 1}s`;
-                }
-            }, 100);
-            
             hotspotLayer.addLayer(marker);
         });
         
         hotspotLayer.addTo(map);
+        console.log('✅ Hotspot berhasil ditampilkan');
     }
     
     function removeHotspots() {
@@ -387,7 +387,11 @@ const MapController = (function() {
     function showColdspots(data, options = {}) {
         if (!map) return;
         removeColdspots();
-        if (!data || data.length === 0) return;
+        
+        if (!data || data.length === 0) {
+            console.log('⚠️ Tidak ada data coldspot untuk ditampilkan');
+            return;
+        }
         
         const filteredData = data.filter(item => {
             const lat = item.lat || item.LATITUDE;
@@ -395,7 +399,12 @@ const MapController = (function() {
             return isInIndonesia(lat, lng);
         });
         
-        if (filteredData.length === 0) return;
+        if (filteredData.length === 0) {
+            console.log('⚠️ Tidak ada coldspot di Indonesia');
+            return;
+        }
+        
+        console.log(`❄️ Menampilkan ${filteredData.length} coldspot`);
         
         const defaultOptions = {
             radius: 10,
@@ -411,7 +420,7 @@ const MapController = (function() {
         
         coldspotLayer = L.layerGroup();
         
-        filteredData.forEach((item) => {
+        filteredData.forEach((item, index) => {
             const lat = item.lat || item.LATITUDE;
             const lng = item.lng || item.LONGITUDE;
             if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
@@ -462,6 +471,7 @@ const MapController = (function() {
         });
         
         coldspotLayer.addTo(map);
+        console.log('✅ Coldspot berhasil ditampilkan');
     }
     
     function removeColdspots() {
