@@ -1,6 +1,5 @@
 /**
- * mapController.js
- * Modul untuk mengontrol peta Leaflet - DENGAN HOVER EFFECT
+ * mapController.js - DENGAN HOVER EFFECT
  */
 
 const MapController = (function() {
@@ -11,12 +10,8 @@ const MapController = (function() {
     let markerLayer = null;
     let hotspotLayer = null;
     let coldspotLayer = null;
-    let clusterLayer = null;
-    let tooltipLayer = null;
     let isInitialized = false;
-    let currentData = [];
     
-    // Batas Indonesia
     const INDONESIA_BOUNDS = {
         minLat: -12.0,
         maxLat: 8.0,
@@ -24,7 +19,6 @@ const MapController = (function() {
         maxLng: 142.0
     };
     
-    // Warna gradient untuk heatmap
     const HEATMAP_GRADIENT = {
         0.0: 'blue',
         0.2: 'cyan',
@@ -48,7 +42,6 @@ const MapController = (function() {
         
         map = L.map(elementId, defaultOptions);
         
-        // Base layers
         const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; OpenStreetMap contributors',
             minZoom: 3,
@@ -82,9 +75,6 @@ const MapController = (function() {
             imperial: false
         }).addTo(map);
         
-        // Tooltip layer untuk hover
-        tooltipLayer = L.layerGroup().addTo(map);
-        
         isInitialized = true;
         
         map.on('moveend', function() {
@@ -103,30 +93,18 @@ const MapController = (function() {
                lng <= INDONESIA_BOUNDS.maxLng;
     }
     
-    /**
-     * Menampilkan heatmap dari data
-     */
     function showHeatmap(data, config = {}) {
         if (!map) return;
         removeHeatmap();
-        if (!data || data.length === 0) {
-            console.warn('Tidak ada data heatmap');
-            return;
-        }
+        if (!data || data.length === 0) return;
         
-        // Filter data di Indonesia
         const filteredData = data.filter(point => {
             const lat = point[0];
             const lng = point[1];
             return isInIndonesia(lat, lng);
         });
         
-        if (filteredData.length === 0) {
-            console.warn('Tidak ada data heatmap di Indonesia');
-            return;
-        }
-        
-        console.log(`Menampilkan heatmap dengan ${filteredData.length} titik`);
+        if (filteredData.length === 0) return;
         
         const defaultConfig = {
             radius: 25,
@@ -142,17 +120,12 @@ const MapController = (function() {
         try {
             heatmapLayer = L.heatLayer(filteredData, finalConfig);
             heatmapLayer.addTo(map);
-            console.log('✅ Heatmap berhasil ditampilkan');
         } catch (error) {
-            console.error('Error menampilkan heatmap:', error);
-            // Fallback: tampilkan sebagai circle markers
+            console.error('Error heatmap:', error);
             showHeatmapFallback(filteredData);
         }
     }
     
-    /**
-     * Fallback heatmap menggunakan circle markers
-     */
     function showHeatmapFallback(data) {
         const group = L.layerGroup();
         const maxIntensity = Math.max(...data.map(d => d[2] || 0), 1);
@@ -161,7 +134,6 @@ const MapController = (function() {
             const lat = point[0];
             const lng = point[1];
             const intensity = (point[2] || 0) / maxIntensity;
-            
             const radius = 3 + intensity * 15;
             const color = getHeatmapColor(intensity);
             
@@ -174,9 +146,7 @@ const MapController = (function() {
                 fillOpacity: 0.3 + intensity * 0.5
             });
             
-            // Tooltip untuk hover
-            marker.bindTooltip(
-                `Kepadatan: ${(intensity * 100).toFixed(1)}%`, 
+            marker.bindTooltip(`Kepadatan: ${(intensity * 100).toFixed(1)}%`, 
                 { permanent: false, direction: 'top', className: 'custom-tooltip' }
             );
             
@@ -185,7 +155,6 @@ const MapController = (function() {
         
         heatmapLayer = group;
         heatmapLayer.addTo(map);
-        console.log('✅ Heatmap fallback ditampilkan');
     }
     
     function getHeatmapColor(intensity) {
@@ -214,25 +183,15 @@ const MapController = (function() {
     
     function removeHeatmap() {
         if (heatmapLayer) {
-            try {
-                map.removeLayer(heatmapLayer);
-            } catch (e) {
-                console.warn('Error removing heatmap:', e);
-            }
+            try { map.removeLayer(heatmapLayer); } catch(e) {}
             heatmapLayer = null;
         }
     }
     
-    /**
-     * Menampilkan marker dengan hover effect
-     */
     function showMarkers(data, options = {}) {
         if (!map) return;
         removeMarkers();
-        if (!data || data.length === 0) {
-            console.warn('Tidak ada data marker');
-            return;
-        }
+        if (!data || data.length === 0) return;
         
         const filteredData = data.filter(item => {
             const lat = item.lat || item.LATITUDE;
@@ -240,12 +199,7 @@ const MapController = (function() {
             return isInIndonesia(lat, lng);
         });
         
-        if (filteredData.length === 0) {
-            console.warn('Tidak ada marker di Indonesia');
-            return;
-        }
-        
-        console.log(`Menampilkan ${filteredData.length} marker`);
+        if (filteredData.length === 0) return;
         
         const defaultOptions = {
             radius: 5,
@@ -272,7 +226,6 @@ const MapController = (function() {
             let fillColor = finalOptions.fillColor;
             let radius = finalOptions.radius;
             
-            // Ubah warna berdasarkan status
             if (isHotspot) {
                 fillColor = '#c62828';
                 radius = 8;
@@ -290,7 +243,20 @@ const MapController = (function() {
                 fillOpacity: 0.7
             });
             
-            // Popup untuk klik
+            let tooltipText = `<strong>${item['NAMA KANTOR'] || 'Fasilitas'}</strong>`;
+            if (density > 0) {
+                tooltipText += `<br>Kepadatan: ${density} titik`;
+            }
+            if (isHotspot) tooltipText += `<br><span style="color: #c62828; font-weight: 600;">🔥 HOTSPOT</span>`;
+            if (isColdspot) tooltipText += `<br><span style="color: #1565c0; font-weight: 600;">❄️ COLDSPOT</span>`;
+            
+            marker.bindTooltip(tooltipText, {
+                permanent: false,
+                direction: 'top',
+                className: 'custom-tooltip',
+                offset: [0, -10]
+            });
+            
             const popupContent = `
                 <div style="min-width: 220px; padding: 5px;">
                     <div style="font-weight: 600; color: #1a237e; font-size: 14px; margin-bottom: 5px;">
@@ -301,7 +267,6 @@ const MapController = (function() {
                         <tr><td><b>Paket:</b></td><td>${item['Paket'] || '-'}</td></tr>
                         <tr><td><b>Regional:</b></td><td>${item['REGIONAL'] || '-'}</td></tr>
                         <tr><td><b>Provinsi:</b></td><td>${item['PROVINSI'] || '-'}</td></tr>
-                        <tr><td><b>Jenis:</b></td><td>${item['JENIS KANTOR'] || '-'}</td></tr>
                         ${density > 0 ? `<tr><td><b>Kepadatan:</b></td><td>${density} titik</td></tr>` : ''}
                         ${isHotspot ? `<tr><td colspan="2" style="color: #c62828; font-weight: 600;">🔥 HOTSPOT</td></tr>` : ''}
                         ${isColdspot ? `<tr><td colspan="2" style="color: #1565c0; font-weight: 600;">❄️ COLDSPOT</td></tr>` : ''}
@@ -309,58 +274,24 @@ const MapController = (function() {
                 </div>
             `;
             
-            marker.bindPopup(popupContent, { 
-                className: 'custom-popup',
-                maxWidth: 300
-            });
-            
-            // Tooltip untuk hover - menampilkan persentase
-            let tooltipText = `<strong>${item['NAMA KANTOR'] || 'Fasilitas'}</strong>`;
-            if (density > 0) {
-                tooltipText += `<br>Kepadatan: ${density} titik`;
-            }
-            if (isHotspot) {
-                tooltipText += `<br><span style="color: #c62828; font-weight: 600;">🔥 HOTSPOT</span>`;
-            }
-            if (isColdspot) {
-                tooltipText += `<br><span style="color: #1565c0; font-weight: 600;">❄️ COLDSPOT</span>`;
-            }
-            
-            marker.bindTooltip(tooltipText, {
-                permanent: false,
-                direction: 'top',
-                className: 'custom-tooltip',
-                offset: [0, -10]
-            });
-            
+            marker.bindPopup(popupContent, { className: 'custom-popup', maxWidth: 300 });
             markerLayer.addLayer(marker);
         });
         
         markerLayer.addTo(map);
-        console.log('✅ Marker berhasil ditampilkan');
     }
     
     function removeMarkers() {
         if (markerLayer) {
-            try {
-                map.removeLayer(markerLayer);
-            } catch (e) {
-                console.warn('Error removing markers:', e);
-            }
+            try { map.removeLayer(markerLayer); } catch(e) {}
             markerLayer = null;
         }
     }
     
-    /**
-     * Menampilkan Hotspot dengan hover effect
-     */
     function showHotspots(data, options = {}) {
         if (!map) return;
         removeHotspots();
-        if (!data || data.length === 0) {
-            console.warn('Tidak ada data hotspot');
-            return;
-        }
+        if (!data || data.length === 0) return;
         
         const filteredData = data.filter(item => {
             const lat = item.lat || item.LATITUDE;
@@ -368,12 +299,7 @@ const MapController = (function() {
             return isInIndonesia(lat, lng);
         });
         
-        if (filteredData.length === 0) {
-            console.warn('Tidak ada hotspot di Indonesia');
-            return;
-        }
-        
-        console.log(`Menampilkan ${filteredData.length} hotspot`);
+        if (filteredData.length === 0) return;
         
         const defaultOptions = {
             radius: 10,
@@ -381,13 +307,13 @@ const MapController = (function() {
             color: '#ff1744',
             weight: 2,
             opacity: 1,
-            fillOpacity: 0.8,
-            pulse: true
+            fillOpacity: 0.8
         };
         
         const finalOptions = { ...defaultOptions, ...options };
         
         hotspotLayer = L.layerGroup();
+        const totalData = filteredData.length;
         
         filteredData.forEach((item, index) => {
             const lat = item.lat || item.LATITUDE;
@@ -395,10 +321,8 @@ const MapController = (function() {
             if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
             
             const density = item.density || 0;
-            const totalData = filteredData.length;
             const percent = totalData > 0 ? (1 / totalData * 100).toFixed(1) : 0;
             
-            // Marker dengan efek pulse
             const marker = L.circleMarker([lat, lng], {
                 radius: finalOptions.radius,
                 fillColor: finalOptions.fillColor,
@@ -408,7 +332,6 @@ const MapController = (function() {
                 fillOpacity: finalOptions.fillOpacity
             });
             
-            // Popup detail
             marker.bindPopup(`
                 <div style="min-width: 200px; padding: 5px;">
                     <div style="color: #c62828; font-weight: 700; font-size: 16px;">🔥 HOTSPOT</div>
@@ -423,7 +346,6 @@ const MapController = (function() {
                 </div>
             `, { className: 'custom-popup' });
             
-            // Tooltip hover dengan persentase
             const tooltipText = `
                 <div style="text-align: center;">
                     <strong style="color: #c62828;">🔥 HOTSPOT</strong><br>
@@ -440,53 +362,32 @@ const MapController = (function() {
                 offset: [0, -15]
             });
             
-            // Animasi pulse menggunakan CSS
-            const pulseStyle = document.createElement('style');
-            pulseStyle.textContent = `
-                .hotspot-pulse-${index} {
-                    animation: pulse-${index} 1.5s ease-in-out infinite;
+            // Pulse animation
+            setTimeout(() => {
+                const el = marker.getElement ? marker.getElement() : null;
+                if (el) {
+                    el.style.animation = `hotspot-pulse 1.5s ease-in-out infinite`;
+                    el.style.animationDelay = `${(index * 0.1) % 1}s`;
                 }
-                @keyframes pulse-${index} {
-                    0% { transform: scale(1); opacity: 1; }
-                    50% { transform: scale(1.3); opacity: 0.7; }
-                    100% { transform: scale(1); opacity: 1; }
-                }
-            `;
-            document.head.appendChild(pulseStyle);
-            
-            const markerElement = marker.getElement ? marker.getElement() : null;
-            if (markerElement) {
-                markerElement.classList.add(`hotspot-pulse-${index}`);
-            }
+            }, 100);
             
             hotspotLayer.addLayer(marker);
         });
         
         hotspotLayer.addTo(map);
-        console.log('✅ Hotspot berhasil ditampilkan');
     }
     
     function removeHotspots() {
         if (hotspotLayer) {
-            try {
-                map.removeLayer(hotspotLayer);
-            } catch (e) {
-                console.warn('Error removing hotspots:', e);
-            }
+            try { map.removeLayer(hotspotLayer); } catch(e) {}
             hotspotLayer = null;
         }
     }
     
-    /**
-     * Menampilkan Coldspot dengan hover effect
-     */
     function showColdspots(data, options = {}) {
         if (!map) return;
         removeColdspots();
-        if (!data || data.length === 0) {
-            console.warn('Tidak ada data coldspot');
-            return;
-        }
+        if (!data || data.length === 0) return;
         
         const filteredData = data.filter(item => {
             const lat = item.lat || item.LATITUDE;
@@ -494,12 +395,7 @@ const MapController = (function() {
             return isInIndonesia(lat, lng);
         });
         
-        if (filteredData.length === 0) {
-            console.warn('Tidak ada coldspot di Indonesia');
-            return;
-        }
-        
-        console.log(`Menampilkan ${filteredData.length} coldspot`);
+        if (filteredData.length === 0) return;
         
         const defaultOptions = {
             radius: 10,
@@ -511,6 +407,7 @@ const MapController = (function() {
         };
         
         const finalOptions = { ...defaultOptions, ...options };
+        const totalData = filteredData.length;
         
         coldspotLayer = L.layerGroup();
         
@@ -520,7 +417,6 @@ const MapController = (function() {
             if (!lat || !lng || isNaN(lat) || isNaN(lng)) return;
             
             const density = item.density || 0;
-            const totalData = filteredData.length;
             const percent = totalData > 0 ? (1 / totalData * 100).toFixed(1) : 0;
             
             const marker = L.circleMarker([lat, lng], {
@@ -546,7 +442,6 @@ const MapController = (function() {
                 </div>
             `, { className: 'custom-popup' });
             
-            // Tooltip hover dengan persentase
             const tooltipText = `
                 <div style="text-align: center;">
                     <strong style="color: #1565c0;">❄️ COLDSPOT</strong><br>
@@ -567,16 +462,11 @@ const MapController = (function() {
         });
         
         coldspotLayer.addTo(map);
-        console.log('✅ Coldspot berhasil ditampilkan');
     }
     
     function removeColdspots() {
         if (coldspotLayer) {
-            try {
-                map.removeLayer(coldspotLayer);
-            } catch (e) {
-                console.warn('Error removing coldspots:', e);
-            }
+            try { map.removeLayer(coldspotLayer); } catch(e) {}
             coldspotLayer = null;
         }
     }
@@ -605,7 +495,7 @@ const MapController = (function() {
         if (bounds.length > 0) {
             try {
                 map.fitBounds(bounds, { padding: [50, 50], maxZoom: 12, ...options });
-            } catch (e) {
+            } catch(e) {
                 map.setView([-2.5, 118.0], 5);
             }
         } else {
