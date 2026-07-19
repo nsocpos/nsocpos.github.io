@@ -1,5 +1,5 @@
 /**
- * dataLoader.js - DENGAN DATA VALID DAN INVALID
+ * dataLoader.js - Load dan Validasi Data
  */
 
 const DataLoader = (function() {
@@ -21,7 +21,6 @@ const DataLoader = (function() {
     
     function fastCleanCoordinate(coord) {
         if (!coord) return null;
-        
         let cleaned = coord.toString().trim().replace(/\s/g, '');
         cleaned = cleaned.replace(/,/g, '.');
         
@@ -50,11 +49,7 @@ const DataLoader = (function() {
     }
     
     function loadFromFile(url, callback, progressCallback) {
-        if (isLoading) {
-            console.warn('Loading in progress...');
-            return;
-        }
-        
+        if (isLoading) return;
         isLoading = true;
         allData = [];
         invalidData = [];
@@ -64,29 +59,22 @@ const DataLoader = (function() {
         
         fetch(url)
             .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
                 return response.text();
             })
             .then(csvString => {
-                if (typeof Papa === 'undefined') {
-                    throw new Error('Papa Parse not found');
-                }
+                if (typeof Papa === 'undefined') throw new Error('Papa Parse not found');
                 
                 const results = Papa.parse(csvString, {
                     header: true,
                     delimiter: ';',
                     skipEmptyLines: true,
                     fastMode: true,
-                    transform: function(value) {
-                        return value ? value.trim() : '';
-                    }
+                    transform: function(value) { return value ? value.trim() : ''; }
                 });
                 
                 const rows = results.data;
                 totalRaw = rows.length;
-                
                 const validData = [];
                 const invalidRows = [];
                 
@@ -94,88 +82,60 @@ const DataLoader = (function() {
                     const row = rows[i];
                     const latRaw = row.LATITUDE || '';
                     const lngRaw = row.LONGITUDE || '';
-                    
                     if (!latRaw && !lngRaw) continue;
                     
                     let lat = fastCleanCoordinate(latRaw);
                     let lng = fastCleanCoordinate(lngRaw);
-                    
                     let isValid = false;
                     let isFixed = false;
                     let invalidReason = '';
                     
                     if (lat !== null && lng !== null) {
                         isValid = isValidIndonesia(lat, lng);
-                        if (!isValid) {
-                            invalidReason = 'Koordinat di luar Indonesia';
-                        }
+                        if (!isValid) invalidReason = 'Di luar Indonesia';
                     } else {
-                        invalidReason = 'Format koordinat tidak valid';
+                        invalidReason = 'Format tidak valid';
                     }
                     
-                    // Coba perbaiki dengan swap
-                    if (!isValid && lat !== null && lng !== null) {
-                        if (isValidIndonesia(lng, lat)) {
-                            const temp = lat;
-                            lat = lng;
-                            lng = temp;
-                            isValid = true;
-                            isFixed = true;
-                            invalidReason = '';
-                        }
+                    if (!isValid && lat !== null && lng !== null && isValidIndonesia(lng, lat)) {
+                        const temp = lat; lat = lng; lng = temp;
+                        isValid = true; isFixed = true; invalidReason = '';
                     }
                     
-                    // Coba perbaiki dengan menghapus titik
                     if (!isValid && latRaw && lngRaw) {
                         const latNoDot = parseFloat(latRaw.replace(/\./g, ''));
                         const lngNoDot = parseFloat(lngRaw.replace(/\./g, ''));
-                        if (!isNaN(latNoDot) && !isNaN(lngNoDot)) {
-                            if (isValidIndonesia(latNoDot, lngNoDot)) {
-                                lat = latNoDot;
-                                lng = lngNoDot;
-                                isValid = true;
-                                isFixed = true;
-                                invalidReason = '';
-                            }
+                        if (!isNaN(latNoDot) && !isNaN(lngNoDot) && isValidIndonesia(latNoDot, lngNoDot)) {
+                            lat = latNoDot; lng = lngNoDot;
+                            isValid = true; isFixed = true; invalidReason = '';
                         }
                     }
                     
                     if (isValid) {
-                        validData.push({
-                            ...row,
-                            lat: lat,
-                            lng: lng,
-                            isFixed: isFixed,
-                            isValid: true
-                        });
+                        validData.push({ ...row, lat, lng, isFixed, isValid: true });
                         if (isFixed) fixedCount++;
                     } else {
                         invalidCount++;
                         invalidRows.push({
-                            ...row,
-                            lat: lat,
-                            lng: lng,
-                            isValid: false,
+                            ...row, lat, lng, isValid: false,
                             invalidReason: invalidReason || 'Tidak dapat diperbaiki',
-                            _rawLat: latRaw,
-                            _rawLng: lngRaw
+                            _rawLat: latRaw, _rawLng: lngRaw
                         });
                     }
                     
                     if (i % 100 === 0 && progressCallback) {
-                        const progress = Math.min(80, 10 + (i / rows.length) * 70);
-                        progressCallback(progress, `Memproses ${i}/${rows.length}...`);
+                        progressCallback(10 + (i / rows.length) * 80, `Memproses ${i}/${rows.length}...`);
                     }
                 }
                 
                 allData = validData;
                 invalidData = invalidRows;
                 
-                console.log('📊 ===== LOAD DATA COMPLETE =====');
-                console.log(`  - Total: ${totalRaw}`);
-                console.log(`  - Valid: ${allData.length} (${(allData.length/totalRaw*100).toFixed(1)}%)`);
-                console.log(`  - Invalid: ${invalidCount} (${(invalidCount/totalRaw*100).toFixed(1)}%)`);
-                console.log(`  - Fixed: ${fixedCount}`);
+                console.log('📊 ===== DATA VALIDASI =====');
+                console.log(`  Total: ${totalRaw}`);
+                console.log(`  ✅ Valid: ${allData.length} (${(allData.length/totalRaw*100).toFixed(1)}%)`);
+                console.log(`  ❌ Invalid: ${invalidCount} (${(invalidCount/totalRaw*100).toFixed(1)}%)`);
+                console.log(`  🔧 Fixed: ${fixedCount}`);
                 
                 isLoading = false;
                 if (progressCallback) progressCallback(100, 'Selesai!');
@@ -188,25 +148,17 @@ const DataLoader = (function() {
             });
     }
     
-    function getAllData() {
-        return allData;
-    }
-    
-    function getInvalidData() {
-        return invalidData;
-    }
+    function getAllData() { return allData; }
+    function getInvalidData() { return invalidData; }
     
     function getFilteredData(filters = {}) {
         let result = [...allData];
-        
         if (filters.regional && filters.regional !== 'all') {
             result = result.filter(row => row['REGIONAL'] === filters.regional);
         }
-        
         if (filters.paket && filters.paket !== 'all') {
             result = result.filter(row => row['Paket'] === filters.paket);
         }
-        
         return result;
     }
     
@@ -236,27 +188,10 @@ const DataLoader = (function() {
         };
     }
     
-    function getInvalidCount() {
-        return invalidCount;
-    }
-    
-    function isLoadingData() {
-        return isLoading;
-    }
-    
     return {
-        loadFromFile: loadFromFile,
-        getAllData: getAllData,
-        getInvalidData: getInvalidData,
-        getFilteredData: getFilteredData,
-        getRegionals: getRegionals,
-        getPakets: getPakets,
-        getStats: getStats,
-        getInvalidCount: getInvalidCount,
-        isLoadingData: isLoadingData
+        loadFromFile, getAllData, getInvalidData, getFilteredData,
+        getRegionals, getPakets, getStats, getInvalidCount: () => invalidCount
     };
 })();
 
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = DataLoader;
-}
+if (typeof module !== 'undefined' && module.exports) { module.exports = DataLoader; }
