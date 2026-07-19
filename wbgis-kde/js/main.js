@@ -1,5 +1,5 @@
 /**
- * main.js - OPTIMASI SUPER CEPAT
+ * main.js - DENGAN DATA LENGKAP UNTUK SEMUA LAYER
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
     UIController.init();
     const map = MapController.init('map');
     
-    // Show loading
     UIController.showLoading('⏳ Memuat data...');
     
     // ============================================
@@ -55,12 +54,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const pakets = DataLoader.getPakets();
             UIController.populatePaketFilter(pakets);
             
-            // Langsung analisis tanpa delay
+            // Simpan data untuk digunakan nanti
+            window._allData = validData;
+            
+            // Langsung analisis
             applyAnalysis();
             UIController.hideLoading();
         },
         function(progress, message) {
-            // Update progress
             const progressEl = document.getElementById('loadingProgress');
             if (progressEl) {
                 progressEl.textContent = message || `Loading... ${Math.round(progress)}%`;
@@ -69,10 +70,11 @@ document.addEventListener('DOMContentLoaded', function() {
     );
     
     // ============================================
-    // 3. FUNGSI ANALISIS (Cepat)
+    // 3. FUNGSI ANALISIS
     // ============================================
     
     let isAnalyzing = false;
+    let lastResults = null;
     
     function applyAnalysis() {
         if (isAnalyzing) return;
@@ -98,6 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
             UIController.updateDataInfo(filteredData.length);
             MapController.clearLayers();
             
+            // Siapkan data points
             const points = filteredData.map(row => ({
                 lat: row.lat,
                 lng: row.lng,
@@ -106,68 +109,56 @@ document.addEventListener('DOMContentLoaded', function() {
             }));
             
             const bounds = MapController.getBounds();
+            let heatData = [];
+            let hotspotResult = null;
+            let densityResult = [];
             
-            if (controls.method === 'kde') {
-                // KDE Analysis - dengan grid kecil untuk kecepatan
-                if (bounds) {
-                    const kdeResult = KDEAnalysis.calculateKDE(
-                        points,
-                        controls.kdeRadius,
-                        bounds,
-                        25 // Grid lebih kecil untuk kecepatan
-                    );
+            // ============================================
+            // KDE ANALYSIS
+            // ============================================
+            if (controls.method === 'kde' && bounds) {
+                const kdeResult = KDEAnalysis.calculateKDE(
+                    points,
+                    controls.kdeRadius,
+                    bounds,
+                    30
+                );
+                
+                if (kdeResult) {
+                    heatData = KDEAnalysis.kdeToHeatmapData(kdeResult, 0.01, 2000);
+                    const densest = KDEAnalysis.findDensestPoint(kdeResult);
+                    const stats = KDEAnalysis.getDensityStats(kdeResult);
+                    UIController.updateDensityStats({
+                        densestPoint: densest,
+                        average: stats ? stats.average : 0
+                    });
                     
-                    if (kdeResult) {
-                        const heatData = KDEAnalysis.kdeToHeatmapData(kdeResult, 0.01, 1500);
-                        
-                        if (controls.showHeatmap && heatData.length > 0) {
-                            MapController.showHeatmap(heatData);
-                        }
-                        
-                        const densest = KDEAnalysis.findDensestPoint(kdeResult);
-                        const stats = KDEAnalysis.getDensityStats(kdeResult);
-                        UIController.updateDensityStats({
-                            densestPoint: densest,
-                            average: stats ? stats.average : 0
-                        });
-                    }
+                    console.log(`✅ KDE selesai: ${heatData.length} titik heatmap`);
                 }
-                
-                if (controls.showMarkers) {
-                    MapController.showMarkers(filteredData);
-                }
-                
-            } else if (controls.method === 'point') {
-                // Point Density Analysis - cepat
-                const densityResult = PointDensityAnalysis.calculatePointDensity(
+            }
+            
+            // ============================================
+            // POINT DENSITY ANALYSIS
+            // ============================================
+            if (controls.method === 'point') {
+                // Hitung density
+                densityResult = PointDensityAnalysis.calculatePointDensity(
                     points,
                     controls.pointRadius,
                     bounds
                 );
                 
+                // Grid density untuk heatmap
                 if (bounds) {
                     const gridResult = PointDensityAnalysis.calculateGridDensity(
                         points,
                         controls.pointRadius,
                         bounds,
-                        25
+                        30
                     );
                     
                     if (gridResult) {
-                        const heatData = PointDensityAnalysis.gridToHeatmapData(gridResult, 0.01, 1500);
-                        
-                        if (controls.showHeatmap && heatData.length > 0) {
-                            MapController.showHeatmap(heatData, {
-                                gradient: {
-                                    0.0: 'blue',
-                                    0.3: 'cyan',
-                                    0.6: 'yellow',
-                                    0.8: 'orange',
-                                    1.0: 'red'
-                                }
-                            });
-                        }
-                        
+                        heatData = PointDensityAnalysis.gridToHeatmapData(gridResult, 0.01, 2000);
                         const highest = PointDensityAnalysis.findHighestDensity(gridResult);
                         const stats = PointDensityAnalysis.getDensityStats(gridResult);
                         UIController.updateDensityStats({
@@ -177,33 +168,80 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 }
                 
-                // Hotspot & Coldspot
-                const hotspotResult = PointDensityAnalysis.identifyHotspots(
+                // Identifikasi Hotspot & Coldspot
+                hotspotResult = PointDensityAnalysis.identifyHotspots(
                     points,
                     controls.pointRadius,
                     1.5
                 );
                 
-                if (controls.showHotspots && hotspotResult.hotspots.length > 0) {
-                    MapController.showHotspots(hotspotResult.hotspots);
-                }
+                console.log(`✅ Point Density selesai:`);
+                console.log(`  - Hotspot: ${hotspotResult.hotspots.length} titik`);
+                console.log(`  - Coldspot: ${hotspotResult.coldspots.length} titik`);
+                console.log(`  - Neutral: ${hotspotResult.neutral.length} titik`);
+            }
+            
+            // ============================================
+            // TAMPILKAN LAYER
+            // ============================================
+            
+            // 1. Heatmap
+            if (controls.showHeatmap && heatData.length > 0) {
+                const gradient = controls.method === 'kde' 
+                    ? {
+                        0.0: 'blue',
+                        0.25: 'cyan',
+                        0.5: 'lime',
+                        0.75: 'yellow',
+                        1.0: 'red'
+                      }
+                    : {
+                        0.0: 'blue',
+                        0.3: 'cyan',
+                        0.6: 'yellow',
+                        0.8: 'orange',
+                        1.0: 'red'
+                      };
                 
-                if (controls.showColdspots && hotspotResult.coldspots.length > 0) {
-                    MapController.showColdspots(hotspotResult.coldspots);
-                }
-                
-                if (controls.showMarkers) {
-                    const neutralPoints = hotspotResult.neutral || [];
-                    if (neutralPoints.length > 0) {
-                        MapController.showMarkers(neutralPoints);
-                    }
+                MapController.showHeatmap(heatData, { gradient: gradient });
+            }
+            
+            // 2. Marker
+            if (controls.showMarkers) {
+                // Jika ada data density, gunakan dengan status
+                if (densityResult.length > 0) {
+                    MapController.showMarkers(densityResult);
+                } else {
+                    MapController.showMarkers(filteredData);
                 }
             }
             
+            // 3. Hotspot
+            if (controls.showHotspots && hotspotResult && hotspotResult.hotspots.length > 0) {
+                MapController.showHotspots(hotspotResult.hotspots);
+                UIController.showInfo(`🔥 Ditemukan ${hotspotResult.hotspots.length} Hotspot`, 3000);
+            }
+            
+            // 4. Coldspot
+            if (controls.showColdspots && hotspotResult && hotspotResult.coldspots.length > 0) {
+                MapController.showColdspots(hotspotResult.coldspots);
+            }
+            
+            // Simpan hasil untuk referensi
+            lastResults = {
+                filteredData,
+                points,
+                heatData,
+                hotspotResult,
+                densityResult
+            };
+            
+            // Fit peta ke data
             MapController.fitToData(filteredData);
             
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Error dalam analisis:', error);
+            UIController.showInfo('❌ Error: ' + error.message, 5000);
         } finally {
             isAnalyzing = false;
         }
@@ -225,6 +263,42 @@ document.addEventListener('DOMContentLoaded', function() {
         MapController.resetView();
         UIController.updateDensityStats(null);
         UIController.showInfo('🔄 Reset', 1500);
+    });
+    
+    // Auto-apply saat checkbox berubah
+    document.querySelectorAll('#showHeatmap, #showMarkers, #showHotspots, #showColdspots').forEach(el => {
+        el?.addEventListener('change', function() {
+            if (lastResults) {
+                // Re-apply dengan data yang sama
+                const controls = UIController.getControlValues();
+                const filteredData = lastResults.filteredData || [];
+                
+                if (filteredData.length === 0) return;
+                
+                MapController.clearLayers();
+                
+                // Tampilkan layer berdasarkan checkbox
+                if (controls.showHeatmap && lastResults.heatData && lastResults.heatData.length > 0) {
+                    MapController.showHeatmap(lastResults.heatData);
+                }
+                
+                if (controls.showMarkers) {
+                    if (lastResults.densityResult && lastResults.densityResult.length > 0) {
+                        MapController.showMarkers(lastResults.densityResult);
+                    } else {
+                        MapController.showMarkers(filteredData);
+                    }
+                }
+                
+                if (controls.showHotspots && lastResults.hotspotResult && lastResults.hotspotResult.hotspots.length > 0) {
+                    MapController.showHotspots(lastResults.hotspotResult.hotspots);
+                }
+                
+                if (controls.showColdspots && lastResults.hotspotResult && lastResults.hotspotResult.coldspots.length > 0) {
+                    MapController.showColdspots(lastResults.hotspotResult.coldspots);
+                }
+            }
+        });
     });
     
     // ============================================
