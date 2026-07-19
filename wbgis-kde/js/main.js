@@ -785,4 +785,114 @@ document.addEventListener('DOMContentLoaded', function() {
                         <tr><td>Tinggi</td><td>🟠</td><td>> 60% - 80% dari kepadatan maksimum</td><td style="background:#e65100;color:white;text-align:center;">Oranye</td></tr>
                         <tr><td>Sedang</td><td>🟡</td><td>> 40% - 60% dari kepadatan maksimum</td><td style="background:#f9a825;color:white;text-align:center;">Kuning</td></tr>
                         <tr><td>Rendah</td><td>🟢</td><td>> 20% - 40% dari kepadatan maksimum</td><td style="background:#2e7d32;color:white;text-align:center;">Hijau</td></tr>
-                        <tr><td>Sangat Rendah</td><td>🔵</td><td>≤ 20% dari kepadatan maksimum</td><td
+                        <tr><td>Sangat Rendah</td><td>🔵</td><td>≤ 20% dari kepadatan maksimum</td><td style="background:#1565c0;color:white;text-align:center;">Biru</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        `;
+        
+        return html;
+    }
+    
+    // ============================================
+    // 12. TAB SWITCHING
+    // ============================================
+    
+    window.showTab = function(tab) {
+        const results = window._tableData;
+        if (!results) return;
+        
+        window._currentTab = tab;
+        
+        document.querySelectorAll('.tab-buttons button').forEach(btn => {
+            btn.classList.remove('active');
+            const text = btn.textContent.trim();
+            if ((tab === 'regional' && text.includes('Per Regional')) ||
+                (tab === 'hotspot' && text.includes('Hotspot')) ||
+                (tab === 'coldspot' && text.includes('Coldspot')) ||
+                (tab === 'all' && text.includes('Semua')) ||
+                (tab === 'density' && text.includes('Kepadatan'))) {
+                btn.classList.add('active');
+            }
+        });
+        
+        let html = '';
+        switch(tab) {
+            case 'regional': html = renderRegionalTab(results); break;
+            case 'hotspot': html = renderHotspotTab(results); break;
+            case 'coldspot': html = renderColdspotTab(results); break;
+            case 'all': html = renderAllDataTab(results); break;
+            case 'density': html = renderDensityTab(results); break;
+            default: html = renderRegionalTab(results);
+        }
+        
+        const tabsHtml = document.querySelector('.tab-buttons')?.outerHTML || '';
+        resultsContent.innerHTML = tabsHtml + html;
+        
+        // Re-attach active class
+        document.querySelectorAll('.tab-buttons button').forEach(btn => {
+            btn.classList.remove('active');
+            const text = btn.textContent.trim();
+            if ((tab === 'regional' && text.includes('Per Regional')) ||
+                (tab === 'hotspot' && text.includes('Hotspot')) ||
+                (tab === 'coldspot' && text.includes('Coldspot')) ||
+                (tab === 'all' && text.includes('Semua')) ||
+                (tab === 'density' && text.includes('Kepadatan'))) {
+                btn.classList.add('active');
+            }
+        });
+    };
+    
+    // ============================================
+    // 13. EVENT LISTENERS
+    // ============================================
+    
+    document.getElementById('btnAnalyze').addEventListener('click', function() {
+        loadingOverlay.classList.remove('hidden');
+        updateLoading('Menganalisis data...');
+        setTimeout(() => {
+            runAnalysis();
+            loadingOverlay.classList.add('hidden');
+        }, 100);
+    });
+    
+    document.getElementById('btnReset').addEventListener('click', function() {
+        MapController.resetView();
+        document.getElementById('densestArea').textContent = '-';
+        document.getElementById('avgDensity').textContent = '-';
+        document.getElementById('totalPoints').textContent = '0';
+        resultsPanel.classList.remove('active');
+    });
+    
+    closeResults.addEventListener('click', function() {
+        resultsPanel.classList.remove('active');
+    });
+    
+    document.getElementById('radiusRange').addEventListener('input', function() {
+        document.getElementById('radiusDisplay').textContent = this.value + ' km';
+    });
+    
+    document.getElementById('filterRegional').addEventListener('change', function() {
+        setTimeout(runAnalysis, 100);
+    });
+    
+    document.getElementById('filterPaket').addEventListener('change', function() {
+        setTimeout(runAnalysis, 100);
+    });
+    
+    document.getElementById('analysisMethod').addEventListener('change', function() {
+        setTimeout(runAnalysis, 100);
+    });
+    
+    // ============================================
+    // 14. EXPOSE GLOBAL
+    // ============================================
+    
+    window.webgis = {
+        DataLoader, KDEAnalysis, PointDensityAnalysis,
+        MapController, runAnalysis, showTab: window.showTab
+    };
+    
+    console.log('✅ WebGIS siap!');
+    console.log(`📊 ${allData.length} data valid`);
+});
