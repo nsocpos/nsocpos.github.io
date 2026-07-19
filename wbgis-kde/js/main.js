@@ -1,5 +1,5 @@
 /**
- * main.js - Aplikasi Utama dengan Tabel Hasil & Tingkat Kepadatan
+ * main.js - Aplikasi Utama dengan Data Eksperimen
  */
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -28,18 +28,12 @@ document.addEventListener('DOMContentLoaded', function() {
     
     function getDensityLevel(density, maxDensity) {
         if (maxDensity === 0) return { level: 'Tidak Ada', color: '#999', icon: '⚪' };
-        
         const ratio = density / maxDensity;
         if (ratio > 0.8) return { level: 'Sangat Tinggi', color: '#c62828', icon: '🔴' };
         if (ratio > 0.6) return { level: 'Tinggi', color: '#e65100', icon: '🟠' };
         if (ratio > 0.4) return { level: 'Sedang', color: '#f9a825', icon: '🟡' };
         if (ratio > 0.2) return { level: 'Rendah', color: '#2e7d32', icon: '🟢' };
         return { level: 'Sangat Rendah', color: '#1565c0', icon: '🔵' };
-    }
-    
-    function getDensityBadge(density, maxDensity) {
-        const info = getDensityLevel(density, maxDensity);
-        return `<span style="color:${info.color};font-weight:600;">${info.icon} ${info.level}</span>`;
     }
     
     // ============================================
@@ -64,16 +58,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const stats = DataLoader.getStats();
             const invalidData = DataLoader.getInvalidData();
             
-            console.log(`✅ ${allData.length} data valid`);
-            console.log(`❌ ${invalidData.length} data invalid`);
+            // Update statistik di UI
+            document.getElementById('totalData').textContent = stats.totalRaw;
+            document.getElementById('validData').textContent = stats.total;
+            document.getElementById('invalidData').textContent = stats.invalid;
+            
+            document.getElementById('statTotal').textContent = stats.totalRaw;
+            document.getElementById('statValid').textContent = stats.total;
+            document.getElementById('statInvalid').textContent = stats.invalid;
+            document.getElementById('statFixed').textContent = stats.fixed;
+            
+            console.log('📊 ===== DATA EKSPERIMEN =====');
+            console.log(`  Total Data: ${stats.totalRaw} titik`);
+            console.log(`  ✅ Data Valid: ${stats.total} titik (${stats.validPercent}%)`);
+            console.log(`  ❌ Data Invalid: ${stats.invalid} titik (${stats.invalidPercent}%)`);
+            console.log(`  🔧 Data Diperbaiki: ${stats.fixed} titik (${stats.fixedPercent}%)`);
             
             dataInfo.className = 'data-info';
             dataInfo.innerHTML = `
                 <i class="fas fa-check-circle" style="color:#2e7d32;"></i> 
-                ${allData.length} data valid (${invalidData.length} invalid diabaikan)
+                ${stats.total} data valid dari ${stats.totalRaw} total (${stats.validPercent}%)
+                <br><small style="color:#999;">${stats.invalid} invalid diabaikan, ${stats.fixed} diperbaiki</small>
             `;
-            
-            document.getElementById('totalData').textContent = allData.length;
             
             populateFilters();
             runAnalysis();
@@ -188,11 +194,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 hotspotResult = PointDensityAnalysis.identifyHotspots(points, radius, 1.5);
                 
-                // Update density di setiap titik dengan maxDensity
+                // Update stats
+                document.getElementById('hotspotCount').textContent = hotspotResult.stats.hotspotCount;
+                document.getElementById('coldspotCount').textContent = hotspotResult.stats.coldspotCount;
+                
+                // Update density dengan maxDensity
                 if (densityResult.length > 0 && maxDensity > 0) {
-                    densityResult.forEach(item => {
-                        item.maxDensity = maxDensity;
-                    });
+                    densityResult.forEach(item => { item.maxDensity = maxDensity; });
                 }
                 
                 MapController.showHotspots(hotspotResult.hotspots);
@@ -237,10 +245,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // Tambahkan maxDensity ke allData
-            allDataWithStatus.forEach(item => {
-                item.maxDensity = maxDensity || 1;
-            });
+            allDataWithStatus.forEach(item => { item.maxDensity = maxDensity || 1; });
             
             const regionalData = Object.keys(regionalMap).map(key => ({
                 regional: key,
@@ -251,7 +256,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 maxDensity: maxDensity || 1
             })).sort((a, b) => b.total - a.total);
             
-            // Hitung kepadatan per regional
+            // Hitung tingkat kepadatan per regional
             regionalData.forEach(reg => {
                 const hotspotPercent = reg.total > 0 ? ((reg.hotspot / reg.total) * 100) : 0;
                 reg.densityLevel = getDensityLevel(hotspotPercent, 100);
@@ -268,7 +273,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 method: method,
                 radius: radius,
                 kdeStats: kdeStats,
-                maxDensity: maxDensity || 1
+                maxDensity: maxDensity || 1,
+                stats: DataLoader.getStats()
             };
             
             lastResults = tableResults;
@@ -278,14 +284,14 @@ document.addEventListener('DOMContentLoaded', function() {
             
         } catch (error) {
             console.error('Error:', error);
-            document.getElementById('dataInfo').innerHTML = '❌ Error: ' + error.message;
+            dataInfo.innerHTML = '❌ Error: ' + error.message;
         } finally {
             isAnalyzing = false;
         }
     }
     
     // ============================================
-    // 6. RENDER TABEL HASIL DENGAN TINGKAT KEPADATAN
+    // 6. RENDER TABEL HASIL
     // ============================================
     
     function renderResultsTable(results, method) {
@@ -335,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         let html = `
             <div class="result-section">
-                <h5><i class="fas fa-map"></i> Distribusi per Regional dengan Tingkat Kepadatan</h5>
+                <h5><i class="fas fa-map"></i> Distribusi per Regional</h5>
                 <table>
                     <thead>
                         <tr>
@@ -356,7 +362,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         results.regionalData.forEach(reg => {
             const percent = reg.total > 0 ? ((reg.hotspot / reg.total) * 100).toFixed(1) : 0;
-            const barWidth = (reg.total / maxTotal) * 100;
             const densityInfo = reg.densityLevel || getDensityLevel(parseFloat(percent), 100);
             
             html += `
@@ -368,12 +373,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${reg.neutral}</td>
                     <td>${percent}%</td>
                     <td>
-                        <span style="color:${densityInfo.color};font-weight:600;font-size:13px;">
+                        <span style="color:${densityInfo.color};font-weight:600;font-size:12px;">
                             ${densityInfo.icon} ${densityInfo.level}
                         </span>
                     </td>
                     <td>
-                        <div class="bar-chart" style="width:120px;">
+                        <div class="bar-chart" style="width:100px;">
                             <div class="bar bar-hotspot" style="width:${(reg.hotspot/maxTotal*100).toFixed(1)}%;"></div>
                             <div class="bar bar-coldspot" style="width:${(reg.coldspot/maxTotal*100).toFixed(1)}%;margin-left:${(reg.hotspot/maxTotal*100).toFixed(1)}%;"></div>
                         </div>
@@ -426,12 +431,10 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         
         const maxCount = Math.max(...Object.values(regCount), 1);
-        const maxDensity = results.maxDensity || 1;
         
         sorted.forEach((reg, i) => {
             const count = regCount[reg];
             const percent = ((count / results.hotspots.length) * 100).toFixed(1);
-            const barWidth = (count / maxCount) * 100;
             const densityInfo = getDensityLevel(parseFloat(percent), 100);
             
             html += `
@@ -447,7 +450,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                     <td>
                         <div class="bar-chart" style="width:100px;">
-                            <div class="bar bar-hotspot" style="width:${barWidth}%;"></div>
+                            <div class="bar bar-hotspot" style="width:${(count/maxCount*100).toFixed(1)}%;"></div>
                         </div>
                     </td>
                 </tr>
@@ -458,39 +461,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 </tbody>
             </table>
             <br>
-            <h5>📍 Daftar Hotspot dengan Tingkat Kepadatan</h5>
+            <h5>📍 Top 10 Hotspot</h5>
             <table>
                 <thead>
-                    <tr><th>No</th><th>Nama Kantor</th><th>Regional</th><th>Provinsi</th><th>Kepadatan</th><th>Tingkat</th></tr>
+                    <tr><th>Rank</th><th>Nama Kantor</th><th>Lokasi</th><th>Density</th><th>Regional</th></tr>
                 </thead>
                 <tbody>
         `;
         
-        const maxDensityHotspot = Math.max(...results.hotspots.map(h => h.density || 0), 1);
-        
-        results.hotspots.slice(0, 50).forEach((item, i) => {
+        results.hotspots.slice(0, 10).forEach((item, i) => {
             const density = item.density || 0;
-            const densityInfo = getDensityLevel(density, maxDensityHotspot);
+            const densityInfo = getDensityLevel(density, results.maxDensity || 1);
             
             html += `
                 <tr class="hotspot-row">
                     <td>${i + 1}</td>
                     <td><strong>${item['NAMA KANTOR'] || 'Unknown'}</strong></td>
-                    <td>${item['REGIONAL'] || '-'}</td>
                     <td>${item['PROVINSI'] || '-'}</td>
-                    <td>${density}</td>
                     <td>
-                        <span style="color:${densityInfo.color};font-weight:600;font-size:11px;">
-                            ${densityInfo.icon} ${densityInfo.level}
+                        ${density}
+                        <span style="font-size:10px;color:${densityInfo.color};">
+                            (${densityInfo.icon})
                         </span>
                     </td>
+                    <td>${item['REGIONAL'] || '-'}</td>
                 </tr>
             `;
         });
-        
-        if (results.hotspots.length > 50) {
-            html += `<tr><td colspan="6" style="text-align:center;color:#666;font-style:italic;">Menampilkan 50 dari ${results.hotspots.length} data</td></tr>`;
-        }
         
         html += `</tbody></table></div>`;
         return html;
@@ -540,7 +537,6 @@ document.addEventListener('DOMContentLoaded', function() {
         sorted.forEach((reg, i) => {
             const count = regCount[reg];
             const percent = ((count / results.coldspots.length) * 100).toFixed(1);
-            const barWidth = (count / maxCount) * 100;
             const densityInfo = getDensityLevel(parseFloat(percent), 100);
             
             html += `
@@ -556,7 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                     <td>
                         <div class="bar-chart" style="width:100px;">
-                            <div class="bar bar-coldspot" style="width:${barWidth}%;"></div>
+                            <div class="bar bar-coldspot" style="width:${(count/maxCount*100).toFixed(1)}%;"></div>
                         </div>
                     </td>
                 </tr>
@@ -567,39 +563,33 @@ document.addEventListener('DOMContentLoaded', function() {
                 </tbody>
             </table>
             <br>
-            <h5>📍 Daftar Coldspot dengan Tingkat Kepadatan</h5>
+            <h5>📍 Top 10 Coldspot</h5>
             <table>
                 <thead>
-                    <tr><th>No</th><th>Nama Kantor</th><th>Regional</th><th>Provinsi</th><th>Kepadatan</th><th>Tingkat</th></tr>
+                    <tr><th>Rank</th><th>Nama Kantor</th><th>Lokasi</th><th>Density</th><th>Regional</th></tr>
                 </thead>
                 <tbody>
         `;
         
-        const maxDensityColdspot = Math.max(...results.coldspots.map(h => h.density || 0), 1);
-        
-        results.coldspots.slice(0, 50).forEach((item, i) => {
+        results.coldspots.slice(0, 10).forEach((item, i) => {
             const density = item.density || 0;
-            const densityInfo = getDensityLevel(density, maxDensityColdspot);
+            const densityInfo = getDensityLevel(density, results.maxDensity || 1);
             
             html += `
                 <tr class="coldspot-row">
                     <td>${i + 1}</td>
                     <td><strong>${item['NAMA KANTOR'] || 'Unknown'}</strong></td>
-                    <td>${item['REGIONAL'] || '-'}</td>
                     <td>${item['PROVINSI'] || '-'}</td>
-                    <td>${density}</td>
                     <td>
-                        <span style="color:${densityInfo.color};font-weight:600;font-size:11px;">
-                            ${densityInfo.icon} ${densityInfo.level}
+                        ${density}
+                        <span style="font-size:10px;color:${densityInfo.color};">
+                            (${densityInfo.icon})
                         </span>
                     </td>
+                    <td>${item['REGIONAL'] || '-'}</td>
                 </tr>
             `;
         });
-        
-        if (results.coldspots.length > 50) {
-            html += `<tr><td colspan="6" style="text-align:center;color:#666;font-style:italic;">Menampilkan 50 dari ${results.coldspots.length} data</td></tr>`;
-        }
         
         html += `</tbody></table></div>`;
         return html;
@@ -614,11 +604,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return '<p style="text-align:center;padding:20px;color:#666;">Tidak ada data</p>';
         }
         
-        const maxDensityAll = results.maxDensity || 1;
-        
         let html = `
             <div class="result-section">
-                <h5><i class="fas fa-list"></i> Semua Data dengan Tingkat Kepadatan</h5>
+                <h5><i class="fas fa-list"></i> Semua Data</h5>
                 <table>
                     <thead>
                         <tr>
@@ -627,7 +615,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <th>Regional</th>
                             <th>Provinsi</th>
                             <th>Kepadatan</th>
-                            <th>Tingkat Kepadatan</th>
+                            <th>Tingkat</th>
                             <th>Status</th>
                         </tr>
                     </thead>
@@ -641,7 +629,7 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (item.isColdspot) { status = '<span class="badge badge-coldspot">❄️ Coldspot</span>'; rowClass = 'coldspot-row'; }
             
             const density = item.density || 0;
-            const densityInfo = getDensityLevel(density, maxDensityAll);
+            const densityInfo = getDensityLevel(density, results.maxDensity || 1);
             
             html += `
                 <tr class="${rowClass}">
@@ -651,7 +639,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td>${item['PROVINSI'] || '-'}</td>
                     <td>${density}</td>
                     <td>
-                        <span style="color:${densityInfo.color};font-weight:600;font-size:12px;">
+                        <span style="color:${densityInfo.color};font-weight:600;font-size:11px;">
                             ${densityInfo.icon} ${densityInfo.level}
                         </span>
                     </td>
@@ -677,7 +665,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return '<p style="text-align:center;padding:20px;color:#666;">Tidak ada data</p>';
         }
         
-        // Hitung distribusi tingkat kepadatan
         const densityLevels = {
             'Sangat Tinggi': 0,
             'Tinggi': 0,
@@ -773,12 +760,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <h5><i class="fas fa-info-circle"></i> Keterangan Tingkat Kepadatan</h5>
                 <table>
                     <thead>
-                        <tr>
-                            <th>Level</th>
-                            <th>Icon</th>
-                            <th>Kriteria</th>
-                            <th>Warna</th>
-                        </tr>
+                        <tr><th>Level</th><th>Icon</th><th>Kriteria</th><th>Warna</th></tr>
                     </thead>
                     <tbody>
                         <tr><td>Sangat Tinggi</td><td>🔴</td><td>> 80% dari kepadatan maksimum</td><td style="background:#c62828;color:white;text-align:center;">Merah</td></tr>
@@ -829,7 +811,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const tabsHtml = document.querySelector('.tab-buttons')?.outerHTML || '';
         resultsContent.innerHTML = tabsHtml + html;
         
-        // Re-attach active class
         document.querySelectorAll('.tab-buttons button').forEach(btn => {
             btn.classList.remove('active');
             const text = btn.textContent.trim();
@@ -860,6 +841,8 @@ document.addEventListener('DOMContentLoaded', function() {
         MapController.resetView();
         document.getElementById('densestArea').textContent = '-';
         document.getElementById('avgDensity').textContent = '-';
+        document.getElementById('hotspotCount').textContent = '-';
+        document.getElementById('coldspotCount').textContent = '-';
         document.getElementById('totalPoints').textContent = '0';
         resultsPanel.classList.remove('active');
     });
